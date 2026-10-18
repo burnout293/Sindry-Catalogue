@@ -6,7 +6,7 @@
 ## category      : apps
 ## icon          : package-plus
 ## tags          : install, winget, microsoft store, applications, update, reinstall, browser, media, tools, games
-## version       : 1.0
+## version       : 1.1
 ## author        : burnout293
 ## created       : 2026-10-18
 ## updated       : 2026-10-18
@@ -18,6 +18,7 @@
 ## reboot        : false
 ## engine        : winps
 ## scan          : true
+## view          : tree
 ## panels        : plan progress
 ## SINDRY:END
 
@@ -41,6 +42,7 @@
 ## CatMedia     : Media
 ## CatBrowsers  : Browsers
 ## CatTools     : Tools
+## CatNetwork   : Network and sharing
 ## PickNote     : [note:info] Tick what you want. An application that is already there can be updated or reinstalled.
 ## LicenceNote  : [note:info] Installing an application accepts its publisher's licence terms on your behalf.
 ## QuickNote    : [note:warn] Quick list: nothing was checked on this PC, so every application is offered.
@@ -56,6 +58,7 @@
 ## C108 : [error] A GitHub project is not written owner/name — Write it like microsoft/PowerToys
 ## C109 : [error] A GitHub source has no valid -Asset to recognise the right file — Add -Asset with a pattern of the file name
 ## C110 : [error] An Add-Download line names an application that is not in the catalogue — Write it after the Add-App line of that application
+## C111 : [error] An -AppIcon name is not valid — Use lowercase letters, digits and dashes only, as in the Sindry-Media-Library repository
 ## E201 : [error] The Windows package manager (winget) was not found — Install App Installer from the Microsoft Store, then run it again
 ## E202 : [error] winget was found in an unexpected place, or is not signed by Microsoft — It was not used; reinstall App Installer from the Microsoft Store
 ## E203 : [error] winget could not read the list of installed applications — Check the Internet connection, then run the analysis again
@@ -105,6 +108,7 @@
 ## CatMedia     : Multimédia
 ## CatBrowsers  : Navigateurs
 ## CatTools     : Outils
+## CatNetwork   : Réseau et partage
 ## PickNote     : Cochez ce que vous voulez. Une application déjà présente peut être mise à jour ou réinstallée.
 ## LicenceNote  : Installer une application accepte en votre nom les conditions de licence de son éditeur.
 ## QuickNote    : Liste rapide : rien n'a été vérifié sur ce PC, toutes les applications sont donc proposées.
@@ -120,6 +124,7 @@
 ## C108         : Un projet GitHub n'est pas écrit propriétaire/nom — Écrivez-le comme microsoft/PowerToys
 ## C109         : Une source GitHub n'a pas de -Asset valide pour reconnaître le bon fichier — Ajoutez -Asset avec un motif du nom du fichier
 ## C110         : Une ligne Add-Download vise une application absente du catalogue — Écrivez-la après la ligne Add-App de cette application
+## C111         : Un nom -AppIcon n'est pas valide — Utilisez seulement des minuscules, des chiffres et des tirets, comme dans le dépôt Sindry-Media-Library
 ## E201         : Le gestionnaire de paquets de Windows (winget) est introuvable — Installez « Programme d'installation d'application » depuis le Microsoft Store, puis relancez
 ## E202         : winget a été trouvé à un endroit inattendu, ou n'est pas signé par Microsoft — Il n'a pas été utilisé ; réinstallez « Programme d'installation d'application » depuis le Microsoft Store
 ## E203         : winget n'a pas pu lire la liste des applications installées — Vérifiez la connexion Internet, puis relancez l'analyse
@@ -234,8 +239,9 @@ $DOWNLOAD_TIMEOUT  = 900                                  # délai maximal d'un 
 $MAX_REDIRECTS     = 5                                    # redirections suivies au plus, toutes en HTTPS
 $JSON_MAX_KB       = 4096                                 # taille maximale d'une réponse de l'API GitHub, en Ko
 $LOG_TAIL_LINES    = 3                                    # lignes de winget gardées dans le journal après chaque appel
-$EMIT_ROLE_ICONS   = $false                               # icône de secours (icon=) : à passer à $true quand Sindry l'acceptera (E4)
-$EMIT_ICON_URLS    = $false                               # icône officielle en ligne (iconurl=) : idem, quand Sindry l'acceptera (E6)
+$EMIT_ROLE_ICONS   = $true                                # icône générique Lucide (icon=), comprise depuis Sindry 2.0.4
+$EMIT_APP_ICONS    = $true                                # icône officielle (appicon=), tirée du dépôt Sindry-Media-Library (Sindry 2.0.4)
+$SKIP_ICON_PATHS   = @('*\Package Cache\*')               # exe= ignoré pour ces chemins : l'installeur gardé en cache montre souvent l'icône générique d'installation
 $WINGET_PACKAGE    = 'Microsoft.DesktopAppInstaller'      # paquet Windows qui contient winget
 $WINGET_PUBLISHER  = 'Microsoft Corporation'              # éditeur attendu dans la signature de winget.exe
 $GITHUB_API        = 'https://api.github.com/repos'       # API des versions publiées sur GitHub
@@ -272,8 +278,9 @@ $ProgressPreference = 'SilentlyContinue'                  # pas de barre de prog
 #               winget search "nom" --source msstore, puis vérifiez l'éditeur avec
 #               winget show --id <id> --source msstore
 #    -Detect    nom dans « Applications installées », * = n'importe quoi. Défaut : Nom*
-#    -Icon      icône de secours Lucide (lucide.dev). Défaut : celle de la catégorie
-#    -IconUrl   adresse HTTPS de l'icône officielle, que Sindry téléchargera (E6)
+#    -Icon      icône générique Lucide (lucide.dev). Défaut : celle de la catégorie
+#    -AppIcon   nom de l'icône officielle dans le dépôt Sindry-Media-Library (icons/<nom>.png).
+#               Défaut : l'Id de l'appli — il suffit d'y déposer icons/<Id>.png
 #    -Exe       programme dont lire l'icône officielle si Windows n'en indique pas
 #    -Note      note du bloc REPORT, affichée avec la liste qui contient l'appli
 #
@@ -300,7 +307,7 @@ function Add-Category([string] $Key, [string] $Label, [string] $Icon) {
 # Déclare une application (voir les colonnes ci-dessus). Les sources directes
 # sont vides : Add-Download les remplit.
 function Add-App([string] $Id, [string] $Name, [string] $Publisher, [string] $Category, [string] $WingetId,
-                 [string] $StoreId = '', [string] $Detect = '', [string] $Icon = '', [string] $IconUrl = '',
+                 [string] $StoreId = '', [string] $Detect = '', [string] $Icon = '', [string] $AppIcon = '',
                  [string] $Exe = '', [string] $Note = '') {
     $APPS.Add([pscustomobject] @{
         Id        = $Id
@@ -311,7 +318,7 @@ function Add-App([string] $Id, [string] $Name, [string] $Publisher, [string] $Ca
         StoreId   = $StoreId
         Detect    = $(if ($Detect) { $Detect } else { "$Name*" })
         Icon      = $Icon
-        IconUrl   = $IconUrl
+        AppIcon   = $(if ($AppIcon) { $AppIcon } else { $Id })
         Exe       = $Exe
         Note      = $Note
         Url       = ''
@@ -349,6 +356,7 @@ Add-Category games      CatGames       gamepad-2
 Add-Category media      CatMedia       play
 Add-Category browsers   CatBrowsers    globe
 Add-Category tools      CatTools       wrench
+Add-Category network    CatNetwork     network
 
 #       Id                Nom                                    Éditeur                          Catégorie  WingetId                               Facultatifs
 # --- Navigateurs --------------------------------------------------------------------------------------------------------------------------------------
@@ -357,6 +365,7 @@ Add-App chrome            'Google Chrome'                        'Google LLC'   
 Add-App brave             Brave                                  'Brave Software'                 browsers   Brave.Brave                            -StoreId XP8C9QZMS2PC1T
 Add-App vivaldi           Vivaldi                                'Vivaldi Technologies'           browsers   Vivaldi.Vivaldi
 Add-App librewolf         LibreWolf                              LibreWolf                        browsers   LibreWolf.LibreWolf                    -Icon shield
+Add-App opera             Opera                                  'Opera Software'                 browsers   Opera.Opera                            -Detect 'Opera Stable*'
 
 # --- Multimédia ---------------------------------------------------------------------------------------------------------------------------------------
 Add-App vlc               'VLC media player'                     VideoLAN                         media      VideoLAN.VLC                           -Icon film -Exe vlc.exe
@@ -369,6 +378,10 @@ Add-App obs               'OBS Studio'                           'OBS Project'  
 Add-App gimp              GIMP                                   'The GIMP Team'                  media      GIMP.GIMP.3                            -StoreId 9PNSJCLXDZ0V -Icon image
 Add-App paint-net         'Paint.NET'                            'dotPDN LLC'                     media      dotPDN.PaintDotNet                     -Detect 'paint.net*' -Icon palette
 Add-App irfanview         IrfanView                              'Irfan Skiljan'                  media      IrfanSkiljan.IrfanView                 -Icon image
+# ArtCraft (suite créative à l'IA, Learning Machines) n'est pas dans winget, seulement
+# ses modules VectorCraft et CadCraft : sa source serait GitHub storytold/artcraft, et
+# l'éditeur qui signe son installeur reste à vérifier. Ensuite :
+# Add-App artcraft        ArtCraft                               'Learning Machines'              media      ''                                     -Icon sparkles
 
 # --- Bureautique --------------------------------------------------------------------------------------------------------------------------------------
 Add-App libreoffice       LibreOffice                            'The Document Foundation'        office     TheDocumentFoundation.LibreOffice      -Icon file-text
@@ -384,12 +397,19 @@ Add-App 7zip              '7-Zip'                                'Igor Pavlov'  
 Add-App everything        Everything                             voidtools                        tools      voidtools.Everything                   -Icon search
 Add-App powertoys         PowerToys                              Microsoft                        tools      Microsoft.PowerToys                    -StoreId XP89DCGQ3K6VLD -Icon layout-grid
 Add-App wiztree           WizTree                                'Antibody Software'              tools      AntibodySoftware.WizTree               -Icon hard-drive
+Add-App keepass           KeePass                                'Dominik Reichl'                 tools      DominikReichl.KeePass                  -Detect 'KeePass Password Safe*' -Icon key-round
 Add-App keepassxc         KeePassXC                              'KeePassXC Team'                 tools      KeePassXCTeam.KeePassXC                -StoreId XP8K2L36VP0QMB -Icon key-round
+Add-App treesize          'TreeSize Free'                        'JAM Software'                   tools      JAMSoftware.TreeSize.Free              -Icon hard-drive
 Add-App bitwarden         Bitwarden                              'Bitwarden Inc.'                 tools      Bitwarden.Bitwarden                    -StoreId 9PJSDV0VPK04 -Icon key-round
 Add-App rufus             Rufus                                  'Pete Batard'                    tools      Rufus.Rufus                            -StoreId 9PC3H3V7Q9CH -Icon usb
 Add-App ventoy            Ventoy                                 Ventoy                           tools      Ventoy.Ventoy                          -Icon usb
 Add-App greenshot         Greenshot                              Greenshot                        tools      Greenshot.Greenshot                    -Icon camera
 Add-App sharex            ShareX                                 'ShareX Team'                    tools      ShareX.ShareX                          -StoreId 9NBLGGH4Z1SP -Icon camera
+
+# --- Réseau et partage --------------------------------------------------------------------------------------------------------------------------------
+Add-App putty             PuTTY                                  'Simon Tatham'                   network    PuTTY.PuTTY                            -Icon terminal
+Add-App qbittorrent       qBittorrent                            'The qBittorrent project'        network    qBittorrent.qBittorrent                -Icon download
+Add-App dropbox           Dropbox                                'Dropbox, Inc.'                  network    Dropbox.Dropbox                        -Icon cloud
 
 # --- Communication ------------------------------------------------------------------------------------------------------------------------------------
 Add-App discord           Discord                                'Discord Inc.'                   chat       Discord.Discord                        -StoreId XPDC2RH70K22MN
@@ -424,6 +444,14 @@ Add-App autoruns          Autoruns                               Sysinternals   
 Add-App process-explorer  'Process Explorer'                     Sysinternals                     rescue     Microsoft.Sysinternals.ProcessExplorer -Icon activity
 Add-App malwarebytes      Malwarebytes                           Malwarebytes                     rescue     Malwarebytes.Malwarebytes              -StoreId XP8C8Z6HXBX7B9 -Icon shield
 Add-App revo              'Revo Uninstaller'                     'VS Revo Group'                  rescue     RevoUninstaller.RevoUninstaller        -Icon trash-2
+# NirSoft : des outils un par un (NirLauncher n'est pas dans winget). Ceux qui
+# retrouvent des mots de passe sont écartés : les antivirus les signalent.
+Add-App shellexview       ShellExView                            NirSoft                          rescue     NirSoft.ShellExView                    -Icon menu
+Add-App usbdeview         USBDeview                              NirSoft                          rescue     NirSoft.USBDeview                      -Icon usb
+Add-App fulleventlogview  FullEventLogView                       NirSoft                          rescue     NirSoft.FullEventLogView               -Icon scroll-text
+Add-App openedfilesview   OpenedFilesView                        NirSoft                          rescue     NirSoft.OpenedFilesView                -Icon file-lock
+Add-App searchmyfiles     SearchMyFiles                          NirSoft                          rescue     NirSoft.SearchMyFiles                  -Icon search
+Add-App wifiinfoview      WifiInfoView                           NirSoft                          rescue     NirSoft.WifiInfoView                   -Icon wifi
 # RustDesk n'est plus dans winget : sa seule source serait GitHub, et l'éditeur
 # qui signe son installeur reste à vérifier sur un fichier téléchargé. Ensuite :
 # Add-App rustdesk        RustDesk                               RustDesk                         rescue     ''                                     -Icon monitor-smartphone -Note RemoteNote
@@ -435,6 +463,9 @@ Add-App powershell7       'PowerShell 7'                         Microsoft      
 Add-App windows-terminal  'Windows Terminal'                     Microsoft                        dev        Microsoft.WindowsTerminal              -StoreId 9N0DX20HK701 -Icon terminal
 Add-App python313         'Python 3.13'                          'Python Software Foundation'     dev        Python.Python.3.13                     -StoreId 9PNRBTZXMB4Z -Detect 'Python 3.13*' -Icon braces
 Add-App nodejs            'Node.js LTS'                          'OpenJS Foundation'              dev        OpenJS.NodeJS.LTS                      -Detect 'Node.js*' -Icon braces
+Add-App heidisql          HeidiSQL                               'Ansgar Becker'                  dev        HeidiSQL.HeidiSQL                      -Icon database
+Add-App dbeaver           'DBeaver Community'                    'DBeaver Corp'                   dev        DBeaver.DBeaver.Community              -Detect 'DBeaver*' -Icon database
+Add-App sqlitebrowser     'DB Browser for SQLite'                'DB Browser for SQLite Team'     dev        DBBrowserForSQLite.DBBrowserForSQLite  -Icon database
 
 # --- Téléchargements directs (dernier recours) --------------------------------------------------------------------------------------------------------
 #            Id            Source                                                                                      Éditeur attendu (signature)    Options silencieuses
@@ -452,6 +483,7 @@ Add-Download powertoys     -GitHub microsoft/PowerToys       -Asset '^PowerToysS
 Add-Download git           -GitHub git-for-windows/git       -Asset '^Git-[\d.]+-64-bit\.exe$'                      -Signer 'Johannes Schindelin'     -Arguments '/VERYSILENT /NORESTART'
 Add-Download keepassxc     -GitHub keepassxreboot/keepassxc  -Asset '-Win64\.msi$'                                  -Signer 'DroidMonkey Apps, LLC'
 # Add-Download rustdesk    -GitHub rustdesk/rustdesk         -Asset '-x86_64\.msi$'                                 -Signer '<à vérifier>'
+# Add-Download artcraft    -GitHub storytold/artcraft        -Asset '_x64_en-US\.msi$'                              -Signer '<à vérifier>'
 
 # =============================================================================
 #  5. CODES  —  ce que veulent dire les codes de sortie
@@ -584,7 +616,7 @@ function Test-Catalogue {
         elseif ($a.GitHub -and $a.GitHub -notmatch '^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$') { $problem = 'C108'; $detail = "$($a.Id) -> '$($a.GitHub)'" }
         elseif ($a.GitHub -and -not (Test-Regex $a.Asset)) { $problem = 'C109'; $detail = "$($a.Id) -> '$($a.Asset)'" }
         elseif ($a.Url -and $a.Url -notmatch '^https://') { $problem = 'C106'; $detail = "$($a.Id) -> $($a.Url)" }
-        elseif ($a.IconUrl -and $a.IconUrl -notmatch '^https://') { $problem = 'C106'; $detail = "$($a.Id) -> $($a.IconUrl)" }
+        elseif ($a.AppIcon -cnotmatch '^[a-z0-9][a-z0-9-]{0,60}$') { $problem = 'C111'; $detail = "$($a.Id) -> '$($a.AppIcon)'" }
         elseif (($a.Url -or $a.GitHub) -and -not $a.Signer) { $problem = 'C105' }
         elseif (-not ($a.WingetId -or $a.StoreId -or $a.Url -or $a.GitHub)) { $problem = 'C104' }
         if ($problem) { Write-Warn $problem (Format-Field $detail); continue }
@@ -695,6 +727,7 @@ function Get-IconPath($App, $Entry) {
     foreach ($c in $candidates) {
         $p = [Environment]::ExpandEnvironmentVariables($c)
         if ($p -notmatch '^[A-Za-z]:\\[^"*?<>|]+\.(exe|dll|ico)$' -or $p -match '\\\.\.?\\') { continue }
+        if (@($SKIP_ICON_PATHS | Where-Object { $p -like $_ }).Count) { continue }
         if (Test-Path -LiteralPath $p -PathType Leaf -ErrorAction SilentlyContinue) { return $p }
     }
     return ''
@@ -742,8 +775,10 @@ function Write-AppItem([string] $List, $App, $St, [bool] $Checked) {
     if ($St.Icon)      { $line += " exe=""$($St.Icon)""" }
     $icon = $App.Icon
     if (-not $icon) { $icon = $CATEGORIES[$App.Category].Icon }
+    # Plusieurs icônes, chacune repli de la précédente : exe= (installée), puis
+    # appicon= (officielle, téléchargée par Sindry), puis icon= (générique).
+    if ($EMIT_APP_ICONS) { $line += " appicon=$($App.AppIcon)" }
     if ($EMIT_ROLE_ICONS) { $line += " icon=$icon" }
-    if ($EMIT_ICON_URLS -and $App.IconUrl) { $line += " iconurl=""$(Format-Field $App.IconUrl)""" }
     if ($Checked) { $line += ' checked=true' } else { $line += ' checked=false' }
     Write-Output $line
 }
@@ -1203,11 +1238,17 @@ if ($ErrCount -gt 0) { exit 1 } else { exit 0 }
 #    Une option fausse peut laisser l'installeur attendre une réponse dans une
 #    fenêtre cachée : essayez-la d'abord à la main.
 #
-#  ÉVOLUTIONS DE SINDRY ATTENDUES
-#    E4  icon=     icône de secours Lucide          -> $EMIT_ROLE_ICONS = $true
-#    E6  iconurl=  icône officielle téléchargée     -> $EMIT_ICON_URLS  = $true
-#    Tant qu'elles n'existent pas, Sindry écarterait ces champs en les signalant
-#    comme inconnus : les deux drapeaux restent à $false.
+#  ICÔNES (Sindry 2.0.4) — de la plus précise à la plus générale
+#    exe=      l'icône lue dans le programme installé (DisplayIcon, ou -Exe)
+#    appicon=  l'icône officielle, que Sindry télécharge depuis le SEUL dépôt
+#              burnout293/Sindry-Media-Library : icons/<nom>.png, PNG ou ICO de 128 Ko au
+#              plus. Le nom vaut l'Id de l'appli, sauf -AppIcon. Une icône absente du
+#              dépôt n'est pas une erreur : l'appli garde son repli.
+#              Drapeau $EMIT_APP_ICONS, à $true quand le dépôt est publié.
+#    icon=     l'icône générique Lucide (-Icon, sinon celle de la catégorie).
+#              Drapeau $EMIT_ROLE_ICONS.
+#    Une version de Sindry antérieure à la 2.0.4 ignore appicon= et icon= en le
+#    signalant en mode Expert : rien ne casse.
 #
 #  CODES DE SORTIE DU SCRIPT
 #    0  tout ce qui était coché a réussi (ou la simulation est finie)
