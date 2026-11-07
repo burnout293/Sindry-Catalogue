@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 6df6b03f-0bcc-4d97-a397-5d70383b0e89
 ## lang          : en
 ## title         : Improve the taskbar and search
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : layout-grid
 ## tags          : taskbar, search, bing, widgets, task view, copilot, chat, alignment
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode            : [select] [scan] Action — apply the clean-up or restore the Windows defaults
 ##   apply         : Apply the clean-up
 ##   restore       : Restore the Windows defaults
@@ -31,9 +31,9 @@
 ##   leftalign     : Align the taskbar to the left — Windows 11 style back to classic
 ## RestartExplorer : [bool]   Apply immediately — restarts the Explorer so changes show at once
 ## SafeTest        : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title           : Améliorer la barre des tâches et la recherche
 ## desc            : Épure la barre des tâches et la recherche de Démarrer - masque l'inutile et coupe les résultats web
 ## Mode            : Action — appliquer le nettoyage ou rétablir les réglages de Windows
@@ -49,7 +49,7 @@
 ##   leftalign     : Aligner la barre des tâches à gauche — retour au style classique sous Windows 11
 ## RestartExplorer : Appliquer tout de suite — redémarre l'Explorateur pour un effet immédiat
 ## SafeTest        : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode            = "apply"
@@ -58,9 +58,9 @@ $CONFIG = @{
     SafeTest        = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -140,10 +140,10 @@ function Set-Value {
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Pour chaque element, state=ok si
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Pour chaque element, state=ok si
 # toutes ses valeurs sont deja a la cible du Mode (Default $null = valeur absente).
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     foreach ($key in @('websearch', 'hidesearchbox', 'taskview', 'widgets', 'chat', 'copilot', 'leftalign')) {
         $done = $true

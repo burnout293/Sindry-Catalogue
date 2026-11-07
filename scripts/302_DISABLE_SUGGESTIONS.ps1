@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 0f94ad12-4807-4bc7-abbe-0ef0e6b28c1f
 ## lang          : en
 ## title         : Remove Windows ads and suggestions
@@ -6,7 +6,7 @@
 ## category      : privacy
 ## icon          : eye-off
 ## tags          : ads, suggestions, spotlight, lock screen, tips, recommendations, start
-## version       : 1.2
+## version       : 1.3
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : tree
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode          : [select] [scan] Action — turn the checked items off or on
 ##   disable     : Turn the checked items off
 ##   enable      : Turn the checked items on
@@ -35,9 +35,9 @@
 ##   getstarted  : Suggested content everywhere — remaining suggested-content feeds
 ## Details       : [items] [view:tree] Exact changes — expand an item to see each registry value, current -> target
 ## SafeTest      : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title         : Supprimer les publicités et suggestions de Windows
 ## desc          : Désactive les publicités, astuces et contenus suggérés que Windows affiche partout
 ## Mode          : Action — désactiver ou activer les éléments cochés
@@ -55,7 +55,7 @@
 ##   getstarted  : Contenus suggérés partout — les flux de contenu suggéré restants
 ## Details       : Modifications exactes — dépliez un élément pour voir chaque valeur de registre, actuelle -> cible
 ## SafeTest      : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode     = "disable"
@@ -64,16 +64,16 @@ $CONFIG = @{
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
 # ==============================================================================
 # Code et sortie en anglais, commentaires en francais (docs/FORMAT_SCRIPT.md).
 #
-# Reglages du compte courant (HKCU) : WinTool etant eleve, c'est le compte qui a
+# Reglages du compte courant (HKCU) : Sindry etant eleve, c'est le compte qui a
 # accepte l'elevation. Chaque element = une liste de valeurs DWORD, avec la
 # valeur "desactive" (Off) et la valeur d'origine de Windows (Default).
 # En mode restore, on ecrit la valeur Default.
@@ -132,12 +132,12 @@ function Format-Key([string] $p) { return ($p -replace '^(HK[A-Z]+):', '$1') }
 function Format-Val($v) { if ($null -eq $v) { return 'not set' } return "$v" }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Arbre : un parent par element,
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Arbre : un parent par element,
 # un enfant par valeur de registre (nom: actuel -> cible, et le chemin de la cle).
 # L'id d'un enfant est "<element>-<index>" : stable pour une version du fichier.
 # Coche d'office : la valeur n'est pas a la cible ET l'element est dans Items.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     $selected = @($CONFIG.Items | ForEach-Object { "$_" })
     foreach ($key in @('startapps', 'settingsads', 'lockscreen', 'tips', 'explorer', 'finishsetup', 'welcome', 'timeline', 'getstarted')) {

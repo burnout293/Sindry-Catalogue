@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 0a69f536-0395-4ba3-8e39-f6682b4ff29d
 ## lang          : en
 ## title         : Check disk health
@@ -6,7 +6,7 @@
 ## category      : health
 ## icon          : hard-drive
 ## tags          : smart, disk, ssd, hdd, wear, temperature, free space
-## version       : 2.2
+## version       : 2.3
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -17,25 +17,25 @@
 ## scan          : true
 ## view          : light
 ## panels        : progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## WearWarnPercent  : [number] [scan] Wear warning — SSD wear level that triggers a warning, in percent
 ## TempWarnCelsius  : [number] [scan] Temperature warning — in degrees Celsius
 ## FreeWarnPercent  : [number] [scan] Low space warning — free space below this percentage
 ## SafeTest         : [bool]          Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## Health      : Disks reported healthy
 ## Wear        : Highest wear level
 ## Temperature : Highest temperature
 ## PowerOn     : Longest power-on time
 ## FreeSpace   : Lowest free space
 ## ReadOnly    : [note:info] This script only measures. It never changes anything on your disks.
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title            : Vérifier la santé des disques
 ## desc             : Contrôle l'état, l'usure et la température de vos disques et la place restante - ne modifie rien
 ## WearWarnPercent  : Alerte d'usure — niveau d'usure d'un SSD qui déclenche une alerte, en pourcentage
@@ -48,7 +48,7 @@
 ## PowerOn          : Temps de fonctionnement le plus long
 ## FreeSpace        : Espace libre le plus bas
 ## ReadOnly         : Ce script ne fait que mesurer. Il ne change jamais rien sur vos disques.
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     WearWarnPercent = 80
@@ -57,9 +57,9 @@ $CONFIG = @{
     SafeTest        = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -69,13 +69,13 @@ if ($env:WINTOOL_CONFIG) {
 # Script en LECTURE SEULE : il ne modifie jamais rien, en analyse comme en action.
 #
 # Le script est lance deux fois (contrat du mode analyse, 1.4) :
-#   1. ANALYSE (WINTOOL_MODE=scan) — il MESURE l'etat des disques et ecrit des
+#   1. ANALYSE (SINDRY_MODE=scan) — il MESURE l'etat des disques et ecrit des
 #      [METRIC] avec un health= (ok / warn / crit). La vue "light" les affiche en
 #      feu tricolore : tout va bien, un point a surveiller, un probleme.
 #   2. ACTION — comme ce script ne rapporte QUE des mesures (aucune case a cocher),
-#      WinTool ne le relance PAS : le diagnostic a deja ete fait pendant l'analyse.
+#      Sindry ne le relance PAS : le diagnostic a deja ete fait pendant l'analyse.
 #
-# Hors WinTool (double-clic), tout le corps ci-dessous s'execute et affiche le
+# Hors Sindry (double-clic), tout le corps ci-dessous s'execute et affiche le
 # detail en clair, disque par disque.
 # ==============================================================================
 
@@ -134,7 +134,7 @@ function Get-DiskSummary {
 # 1. ANALYSE — on mesure, on decrit en [METRIC], on ne modifie RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
 
     Write-Output "[STEP] 1/2 Reading physical disks"
     $s = Get-DiskSummary

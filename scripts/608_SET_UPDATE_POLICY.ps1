@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 3f3ff641-24dd-4aef-9479-ae110192963a
 ## lang          : en
 ## title         : Take control of Windows updates
@@ -6,7 +6,7 @@
 ## category      : tools
 ## icon          : settings
 ## tags          : windows update, defer, restart, active hours, drivers, policy
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : medium
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode              : [select] [scan] Action — turn the checked controls on or off
 ##   enable          : Turn the checked controls on
 ##   disable         : Turn the checked controls off — back to the Windows defaults
@@ -96,9 +96,9 @@
 ##   h22             : 22:00
 ##   h23             : 23:00
 ## SafeTest          : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title             : Reprendre le contrôle des mises à jour
 ## desc              : Décide quand et comment Windows se met à jour - reporter, retarder les redémarrages, exclure les pilotes, ou stopper l'auto-MAJ
 ## Mode              : Action — activer ou désactiver les contrôles cochés
@@ -179,7 +179,7 @@
 ##   h22             : 22 h
 ##   h23             : 23 h
 ## SafeTest          : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode             = "enable"
@@ -191,9 +191,9 @@ $CONFIG = @{
     SafeTest         = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -259,11 +259,11 @@ $Labels = @{
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Mode enable : state=ok si toutes
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Mode enable : state=ok si toutes
 # les valeurs sont deja posees (avec les nombres choisis) ; mode disable :
 # state=ok si toutes les valeurs sont absentes.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current policies"
     foreach ($key in @('notifydownload', 'noautorestart', 'noforcedrestart', 'activehours', 'deferfeature', 'deferquality', 'excludedrivers', 'pausep2p', 'stopauto')) {
         $done = $true

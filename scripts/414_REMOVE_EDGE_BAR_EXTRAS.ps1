@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : e1dac918-8b3b-4e15-9a6a-b02f51049a67
 ## lang          : en
 ## title         : Declutter Microsoft Edge
@@ -6,7 +6,7 @@
 ## category      : apps
 ## icon          : app-window
 ## tags          : edge, sidebar, copilot, shopping, msn, new tab, policy
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode          : [select] [scan] Action — turn the checked items off or on
 ##   disable     : Turn the checked items off
 ##   enable      : Turn the checked items on — removes the policies, back to Edge defaults
@@ -32,9 +32,9 @@
 ##   recommend   : Recommendations — Edge tips, promos and "recommended" nudges
 ##   games       : Games menu and Edge bar — the games and eDrop entry points
 ## SafeTest      : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title         : Épurer Microsoft Edge
 ## desc          : Désactive la barre latérale, Copilot, les achats et les actualités dans Edge, via des stratégies de navigateur géré
 ## Mode          : Action — désactiver ou activer les éléments cochés
@@ -51,7 +51,7 @@
 ##   recommend   : Recommandations — astuces, promos et incitations « recommandé » d'Edge
 ##   games       : Menu Jeux et barre Edge — les points d'entrée jeux et eDrop
 ## SafeTest      : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode     = "disable"
@@ -59,9 +59,9 @@ $CONFIG = @{
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -123,11 +123,11 @@ $Definitions = @{
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Meme cible que le corps :
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Meme cible que le corps :
 # disable = valeur presente et egale a Off ; enable = valeur absente.
 # state=ok si toutes les valeurs de l'element sont a la cible, sinon state=todo.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     foreach ($key in @('sidebar', 'copilot', 'shopping', 'collections', 'msncontent', 'feedback', 'firstrun', 'recommend', 'games')) {
         $done = $true

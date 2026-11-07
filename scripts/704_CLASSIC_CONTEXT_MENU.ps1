@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 3ee76dcd-7367-4a49-9a16-d3a6a2f29b71
 ## lang          : en
 ## title         : Bring back the full right-click menu
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : layout-grid
 ## tags          : context menu, right-click, windows 11, classic, explorer
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -15,17 +15,17 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode            : [select] Action — which right-click menu to use
 ##   classic       : Use the full classic menu (Windows 10 style)
 ##   modern        : Use the short modern menu (Windows 11 default)
 ## RestartExplorer : [bool]   Apply immediately — restarts the Explorer so the change shows at once
 ## SafeTest        : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title           : Retrouver le clic droit complet
 ## desc            : Rétablit le menu clic droit classique de Windows 10 au lieu du menu raccourci de Windows 11
 ## Mode            : Action — quel menu clic droit utiliser
@@ -33,7 +33,7 @@
 ##   modern        : Utiliser le menu court moderne (défaut de Windows 11)
 ## RestartExplorer : Appliquer tout de suite — redémarre l'Explorateur pour un effet immédiat
 ## SafeTest        : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode            = "classic"
@@ -41,9 +41,9 @@ $CONFIG = @{
     SafeTest        = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -61,10 +61,10 @@ $key      = 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}
 $inproc   = "$key\InprocServer32"
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) - lecture seule. Menu classique actif si la
+# ANALYSE (SINDRY_MODE=scan) - lecture seule. Menu classique actif si la
 # sous-cle InprocServer32 existe. recommended = choix par defaut (classic).
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading the current menu"
     $isClassic = Test-Path $inproc
     foreach ($choice in @('classic', 'modern')) {

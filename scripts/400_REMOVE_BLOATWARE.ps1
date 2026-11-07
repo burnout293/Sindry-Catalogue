@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : add42e62-5277-4ff2-a4ab-f84184ad2fc6
 ## lang          : en
 ## title         : Remove unwanted apps
@@ -6,7 +6,7 @@
 ## category      : apps
 ## icon          : package-minus
 ## tags          : bloatware, appx, oem, uninstall, preinstalled, candy crush, mcafee
-## version       : 4.0
+## version       : 4.1
 ## admin         : true
 ## risk          : medium
 ## duration      : medium
@@ -16,9 +16,9 @@
 ## engine        : winps
 ## scan          : true
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Remove            : [multi] Apps to remove — only those found on this PC are shown after the analysis
 ##   candycrush    : Candy Crush and King games
 ##   solitaire     : Solitaire Collection
@@ -63,14 +63,14 @@
 ##   cyberlink     : CyberLink bundle — Power2Go, PowerDirector
 ## RemoveProvisioned : [bool]  Prevent reinstallation — also removes Store apps for future accounts
 ## SafeTest          : [bool]  Safe test — lists the apps, uninstalls nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## Protected : [note:info] Windows, the Store, winget, security and framework apps are never touched.
 ## Win32Note : [note:warn] Desktop apps are removed by their own uninstaller, which may be slow or ask its own questions.
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title              : Retirer les applications inutiles
 ## desc               : Désinstalle les applications préinstallées que vous cochez - apps du Store et bloatware OEM
 ## Remove             : Applications à retirer — seules celles présentes sur ce PC s'affichent après l'analyse
@@ -119,7 +119,7 @@
 ## SafeTest           : Test sans risque — liste les applications, ne désinstalle rien
 ## Protected          : Windows, le Store, winget, les apps de sécurité et les frameworks ne sont jamais touchés.
 ## Win32Note          : Les apps bureautiques sont retirées par leur propre désinstalleur, parfois lent ou posant ses propres questions.
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Remove            = @("candycrush", "solitaire", "othergames", "news", "weather", "msnapps", "gethelp", "tips", "feedback", "officehub", "powerautomate", "cortana", "teams", "family", "clipchamp", "filmstv", "mixedreality", "people", "maps", "skype", "wallet", "social", "devhome")
@@ -127,9 +127,9 @@ $CONFIG = @{
     SafeTest          = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -147,8 +147,8 @@ if ($env:WINTOOL_CONFIG) {
 # pilote, d'outil de mise a jour ni de securite constructeur.
 #
 # Lance deux fois (contrat du mode analyse, 1.4) :
-#   1. ANALYSE (WINTOOL_MODE=scan) — un [FIND] par choix PRESENT sur le PC.
-#   2. ACTION — WinTool renvoie dans $CONFIG.Remove les choix coches.
+#   1. ANALYSE (SINDRY_MODE=scan) — un [FIND] par choix PRESENT sur le PC.
+#   2. ACTION — Sindry renvoie dans $CONFIG.Remove les choix coches.
 # ==============================================================================
 
 $SafeTest = ("$($CONFIG.SafeTest)" -eq 'True')
@@ -262,7 +262,7 @@ function Get-ChoiceTargets {
 # 1. ANALYSE — un [FIND] par choix present, on ne desinstalle RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/2 Reading installed Store apps"
     $appx  = Get-RemovableAppx
     Write-Output "[STEP] 2/2 Reading installed desktop apps"

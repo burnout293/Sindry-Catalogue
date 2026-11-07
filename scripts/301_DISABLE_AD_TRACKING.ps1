@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 02fec307-3a3d-477c-9ea6-f322170e0d74
 ## lang          : en
 ## title         : Disable ad tracking
@@ -6,7 +6,7 @@
 ## category      : privacy
 ## icon          : eye-off
 ## tags          : advertising id, ads, tracking, suggestions, tailored experiences
-## version       : 2.2
+## version       : 2.3
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : tree
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode          : [select] [scan] Action — turn the checked items off or on
 ##   disable     : Turn the checked items off
 ##   enable      : Turn the checked items on
@@ -29,9 +29,9 @@
 ##   tailored    : Tailored experiences — tips and offers based on your diagnostic data
 ## Details       : [items] [view:tree] Exact changes — expand an item to see each registry value, current -> target
 ## SafeTest      : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title         : Désactiver la publicité ciblée
 ## desc          : Empêche Windows de vous profiler pour afficher des publicités et des suggestions
 ## Mode          : Action — désactiver ou activer les éléments cochés
@@ -43,7 +43,7 @@
 ##   tailored    : Expériences personnalisées — astuces et offres basées sur vos données de diagnostic
 ## Details       : Modifications exactes — dépliez un élément pour voir chaque valeur de registre, actuelle -> cible
 ## SafeTest      : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode     = "disable"
@@ -52,16 +52,16 @@ $CONFIG = @{
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
 # ==============================================================================
 # Code et sortie en anglais, commentaires en francais (docs/FORMAT_SCRIPT.md).
 #
-# Reglages du compte courant (HKCU) : WinTool etant eleve, c'est le compte qui a
+# Reglages du compte courant (HKCU) : Sindry etant eleve, c'est le compte qui a
 # accepte l'elevation. Chaque element = une liste de valeurs DWORD, avec la
 # valeur "desactive" et la valeur d'origine de Windows.
 # SafeTest : les valeurs sont lues, rien n'est ecrit.
@@ -88,12 +88,12 @@ function Format-Key([string] $p) { return ($p -replace '^(HK[A-Z]+):', '$1') }
 function Format-Val($v) { if ($null -eq $v) { return 'not set' } return "$v" }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Arbre : un parent par element,
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Arbre : un parent par element,
 # un enfant par valeur de registre (nom: actuel -> cible, et le chemin de la cle).
 # L'id d'un enfant est "<element>-<index>" : stable pour une version du fichier.
 # Coche d'office : la valeur n'est pas a la cible ET l'element est dans Items.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     $selected = @($CONFIG.Items | ForEach-Object { "$_" })
     foreach ($key in @('adid', 'apptracking', 'tailored')) {

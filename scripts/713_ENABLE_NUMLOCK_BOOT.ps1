@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 64e0d248-f52c-4ba6-be04-29bb80248251
 ## lang          : en
 ## title         : Num Lock on at startup
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : keyboard
 ## tags          : num lock, numlock, keyboard, startup, boot, login, restart required, redémarrage
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode              : [select] [scan] Action — turn Num Lock at startup on or off
 ##   enable          : Turn Num Lock on at startup
 ##   disable         : Do not force Num Lock at startup — the Windows default
@@ -26,9 +26,9 @@
 ##   currentuser     : Your account — after you log in
 ## DisableFastStartup : [bool]  Also disable fast startup — makes the setting reliable, it can otherwise be ignored
 ## SafeTest          : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title             : Verr Num activé au démarrage
 ## desc              : Active automatiquement le pavé numérique à l'écran de connexion et après ouverture de session
 ## Mode              : Action — activer ou désactiver le Verr Num au démarrage
@@ -39,7 +39,7 @@
 ##   currentuser     : Votre compte — après ouverture de session
 ## DisableFastStartup : Désactiver aussi le démarrage rapide — rend le réglage fiable, sinon il peut être ignoré
 ## SafeTest          : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode               = "enable"
@@ -48,9 +48,9 @@ $CONFIG = @{
     SafeTest           = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -89,10 +89,10 @@ function Set-Indicator {
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) - lecture seule. Pour chaque portee, state=ok si
+# ANALYSE (SINDRY_MODE=scan) - lecture seule. Pour chaque portee, state=ok si
 # InitialKeyboardIndicators vaut deja la cible du Mode choisi, sinon state=todo.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     foreach ($key in @('signin', 'currentuser')) {
         $cur = (Get-ItemProperty -Path $scopeDefs[$key].Path -Name 'InitialKeyboardIndicators' -ErrorAction SilentlyContinue).InitialKeyboardIndicators

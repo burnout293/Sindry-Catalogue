@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 769bf6f5-1025-4fa4-a6dc-c126dd271a74
 ## lang          : en
 ## title         : Reduce telemetry
@@ -6,7 +6,7 @@
 ## category      : privacy
 ## icon          : shield-check
 ## tags          : telemetry, diagtrack, diagnostic data, ceip, privacy, restart required, redémarrage
-## version       : 2.3
+## version       : 2.4
 ## admin         : true
 ## risk          : medium
 ## duration      : fast
@@ -17,22 +17,22 @@
 ## scan          : true
 ## view          : tree
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## DisablePolicy   : [bool] [scan] Data collection policy — lowest level allowed by your Windows edition
 ## DisableServices : [bool] [scan] Telemetry services — Connected User Experiences, WAP push
 ## DisableTasks    : [bool] [scan] Scheduled tasks — compatibility appraiser, improvement program
 ## Details         : [items] [view:tree] Exact changes — expand a part to see each registry value, service or task, current -> target
 ## SafeTest        : [bool] Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## EditionNote : [note:info] Home and Pro cannot go below "Required diagnostic data"; that level is applied.
 ## RebootNote  : [note:warn] A restart is needed for the telemetry changes to fully apply.
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title           : Protéger ma vie privée
 ## desc            : Réduit ce que Windows transmet à Microsoft
 ## DisablePolicy   : Règle de collecte — le niveau le plus bas permis par votre édition de Windows
@@ -42,7 +42,7 @@
 ## SafeTest        : Test sans risque — simule chaque modification, ne change rien
 ## EditionNote     : Famille et Pro ne peuvent pas descendre sous « Données de diagnostic requises » ; ce niveau est appliqué.
 ## RebootNote      : Un redémarrage est nécessaire pour que les changements de télémétrie s'appliquent entièrement.
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     DisablePolicy   = $true
@@ -52,9 +52,9 @@ $CONFIG = @{
     SafeTest        = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -70,8 +70,8 @@ if ($env:WINTOOL_CONFIG) {
 # et ecrivent exactement les memes cibles.
 #
 # Le script est lance deux fois (contrat du mode analyse, 1.4) :
-#   1. ANALYSE (WINTOOL_MODE=scan) — une ligne [FIND] par case, avec son state=.
-#   2. ACTION — WinTool renvoie dans $CONFIG les seules cases cochees ($true).
+#   1. ANALYSE (SINDRY_MODE=scan) — une ligne [FIND] par case, avec son state=.
+#   2. ACTION — Sindry renvoie dans $CONFIG les seules cases cochees ($true).
 # ==============================================================================
 
 $SafeTest = ("$($CONFIG.SafeTest)" -eq 'True')
@@ -132,7 +132,7 @@ function Get-Changes {
 # partie est activee dans la config. On ne modifie RIEN.
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current telemetry settings"
     Write-Output "[NOTE] EditionNote Details"
     Write-Output "[NOTE] RebootNote"

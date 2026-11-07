@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d
 ## lang          : en
 ## title         : Analysis lab — test every view
@@ -6,7 +6,7 @@
 ## category      : tools
 ## icon          : flask-conical
 ## tags          : lab, test, analysis, views, demo, sandbox
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -16,9 +16,9 @@
 ## engine        : auto
 ## scan          : true
 ## panels        : progress plan payload config attention
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Sections     : [multi] [scan] Which demos to show — pick one or more views to feed with fake data
 ##   bars       : Bar chart (multi with sizes)
 ##   donut      : Donut chart (multi with sizes)
@@ -55,9 +55,9 @@
 ##   medium     : Medium
 ##   high       : High
 ## SafeTest     : [bool] Safe test — this lab changes nothing in any case
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## Caches    : [group] Caches — Temporary files that come back on their own
 ## Updates   : [group] Old updates — What Windows keeps after installing
 ## Cache     : Cache
@@ -73,9 +73,9 @@
 ## RamUsage  : Memory in use
 ## BootTime  : Last boot time
 ## DisksOk   : Disks reported healthy
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Laboratoire d'analyse — tester chaque vue
 ## desc         : Un bac à sable sûr qui alimente chaque vue et chaque marqueur d'analyse avec de fausses données. Ne modifie jamais rien.
 ## Sections     : Quelles démos afficher — une ou plusieurs vues à alimenter en fausses données
@@ -129,7 +129,7 @@
 ## RamUsage     : Mémoire utilisée
 ## BootTime     : Dernier démarrage
 ## DisksOk      : Disques en bonne santé
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Sections    = @("bars", "donut", "chart", "tree", "table", "tiles", "treemap", "keepone", "metrics")
@@ -146,9 +146,9 @@ $CONFIG = @{
     SafeTest    = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -165,7 +165,7 @@ if ($env:WINTOOL_CONFIG) {
 # alimentees (tu peux en montrer une seule ou plusieurs a la fois).
 #
 # Le script est lance deux fois (contrat du mode analyse) :
-#   1. ANALYSE (WINTOOL_MODE=scan) — ecrit [FIND]/[ITEM]/[METRIC]/[NOTE]/[LOG]. Rien touche.
+#   1. ANALYSE (SINDRY_MODE=scan) — ecrit [FIND]/[ITEM]/[METRIC]/[NOTE]/[LOG]. Rien touche.
 #   2. ACTION — journalise ce qu'il FERAIT avec la selection, emet un faux [FREED]
 #      (pour tester la vue history), et se termine. Aucune modification, jamais.
 # ==============================================================================
@@ -181,7 +181,7 @@ function Test-Section {
 # 1. ANALYSE — fausses donnees, aucune lecture ni ecriture reelle
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
 
     # --- Des notes en tete : une info, un avertissement, une note Simple ---
     Write-Output "[NOTE] InfoNote"
@@ -297,7 +297,7 @@ if ($env:WINTOOL_MODE -eq 'scan') {
 # ==============================================================================
 # 2. ACTION — journalise ce qui SERAIT fait, ne modifie RIEN
 # ==============================================================================
-# Apres l'analyse, WinTool renvoie dans $CONFIG les cases cochees. On ne fait que
+# Apres l'analyse, Sindry renvoie dans $CONFIG les cases cochees. On ne fait que
 # les afficher, puis on emet un faux [FREED] pour nourrir la vue "history".
 
 Write-Host "[INFO] Analysis lab - action phase. This script never changes anything."

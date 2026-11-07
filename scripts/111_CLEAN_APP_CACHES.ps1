@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 3092147a-c8de-453f-b73d-582daba270f0
 ## lang          : en
 ## title         : Clear app caches
@@ -6,7 +6,7 @@
 ## category      : cleaning
 ## icon          : eraser
 ## tags          : cache, discord, teams, spotify, slack, nvidia, adobe, disk space
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : medium
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : bars
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Apps         : [multi]  Apps to clean — pick one or more
 ##   teams      : Microsoft Teams — classic and new
 ##   discord    : Discord
@@ -41,9 +41,9 @@
 ##   h48        : Older than 2 days
 ##   h168       : Older than 1 week
 ## SafeTest     : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Vider le cache des applications
 ## desc         : Libère la place occupée par le cache des applications courantes - vos comptes et réglages ne sont pas touchés
 ## Apps         : Applications à nettoyer — une ou plusieurs
@@ -67,7 +67,7 @@
 ##   h48        : Plus de 2 jours
 ##   h168       : Plus d'une semaine
 ## SafeTest     : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Apps        = @("teams", "discord", "slack", "spotify", "vscode", "nvidia")
@@ -77,9 +77,9 @@ $CONFIG = @{
     SafeTest    = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -215,7 +215,7 @@ function Measure-CacheDirs {
 # ANALYSE - on mesure, on ne supprime ni ne ferme RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     $order = @('teams', 'discord', 'slack', 'spotify', 'zoom', 'vscode', 'nvidia', 'adobe', 'steam', 'epic', 'onedrive')
     $i = 0
     foreach ($a in $order) {

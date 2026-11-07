@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 7dd0f2a8-ccf3-47c4-a139-89cc8dd31a53
 ## lang          : en
 ## title         : Pause Windows updates
@@ -6,7 +6,7 @@
 ## category      : tools
 ## icon          : calendar-clock
 ## tags          : windows update, pause, defer, updates
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : medium
 ## duration      : fast
@@ -14,9 +14,9 @@
 ## interruptible : true
 ## reboot        : false
 ## engine        : auto
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Duration    : [select] How long to pause — resume, a fixed time, or indefinitely
 ##   resume    : Resume now — cancel the pause and any keep-alive task
 ##   d7        : 7 days
@@ -27,9 +27,9 @@
 ##   m12       : 12 months — kept alive past the official limit
 ##   infinite  : Indefinitely — renewed every day until you resume
 ## SafeTest    : [bool] Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title       : Mettre en pause les mises à jour
 ## desc        : Met les mises à jour de Windows en pause aussi longtemps que voulu - peut dépasser la limite officielle de 35 jours
 ## Duration    : Durée de la pause — reprendre, une durée fixe, ou indéfiniment
@@ -42,16 +42,16 @@
 ##   m12       : 12 mois — maintenu au-delà de la limite officielle
 ##   infinite  : Indéfiniment — renouvelé chaque jour jusqu'à ce que vous repreniez
 ## SafeTest    : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Duration = "d35"
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -68,14 +68,16 @@ if ($env:WINTOOL_CONFIG) {
 # mise a jour de Windows, une strategie d'entreprise ou un changement Microsoft
 # peut supprimer la tache ou ignorer la pause. On l'annonce au user.
 #
-# Etat conserve dans HKLM:\SOFTWARE\WinTool\UpdatePause (marqueur "PauseUntil").
+# Etat conserve dans HKLM:\SOFTWARE\Sindry\Scripts\7dd0f2a8-ccf3-47c4-a139-89cc8dd31a53 (marqueur "PauseUntil").
+# Sans ce marqueur, la tache s'arrete et reprend les mises a jour : desinstaller
+# Sindry en effacant tout le retire, et rien ne doit rester en pause sans fin.
 # SafeTest : tout est seulement annonce, rien n'est ecrit ni planifie.
 # ==============================================================================
 
 $SafeTest = ("$($CONFIG.SafeTest)" -eq 'True')
 $UX       = 'HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings'
-$MARK     = 'HKLM:\SOFTWARE\WinTool\UpdatePause'
-$TASK     = 'WinTool-KeepUpdatesPaused'
+$MARK     = 'HKLM:\SOFTWARE\Sindry\Scripts\7dd0f2a8-ccf3-47c4-a139-89cc8dd31a53'
+$TASK     = 'Sindry-KeepUpdatesPaused'
 
 function Get-IsoDate { param([datetime] $D) return $D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ") }
 
@@ -101,14 +103,15 @@ function Clear-PauseWindow {
 }
 
 # Tache quotidienne : re-applique une pause de 35 j, ou reprend si la cible est
-# atteinte. La commande est inline (aucun fichier d'aide depose).
+# atteinte ou si le marqueur a disparu. La commande est inline (aucun fichier d'aide depose).
 function Register-KeepAliveTask {
     $cmd = @'
-$UX="HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings";$M="HKLM:\SOFTWARE\WinTool\UpdatePause";
+$UX="HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings";$M="HKLM:\SOFTWARE\Sindry\Scripts\7dd0f2a8-ccf3-47c4-a139-89cc8dd31a53";
 $t=(Get-ItemProperty -Path $M -Name PauseUntil -EA SilentlyContinue).PauseUntil;
 $now=Get-Date;$stop=$false;
+if(-not $t){$stop=$true}
 if($t -and $t -ne "infinite"){ try{ if($now -gt [datetime]::Parse($t)){$stop=$true} }catch{} }
-if($stop){ foreach($n in "PauseUpdatesStartTime","PauseUpdatesExpiryTime","PauseFeatureUpdatesStartTime","PauseFeatureUpdatesEndTime","PauseQualityUpdatesStartTime","PauseQualityUpdatesEndTime"){Remove-ItemProperty -Path $UX -Name $n -EA SilentlyContinue}; Unregister-ScheduledTask -TaskName "WinTool-KeepUpdatesPaused" -Confirm:$false -EA SilentlyContinue; exit }
+if($stop){ foreach($n in "PauseUpdatesStartTime","PauseUpdatesExpiryTime","PauseFeatureUpdatesStartTime","PauseFeatureUpdatesEndTime","PauseQualityUpdatesStartTime","PauseQualityUpdatesEndTime"){Remove-ItemProperty -Path $UX -Name $n -EA SilentlyContinue}; Unregister-ScheduledTask -TaskName "Sindry-KeepUpdatesPaused" -Confirm:$false -EA SilentlyContinue; exit }
 $s=$now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");$e=$now.AddDays(35).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 Set-ItemProperty -Path $UX -Name PauseUpdatesStartTime -Value $s;Set-ItemProperty -Path $UX -Name PauseUpdatesExpiryTime -Value $e;
 Set-ItemProperty -Path $UX -Name PauseFeatureUpdatesStartTime -Value $s;Set-ItemProperty -Path $UX -Name PauseFeatureUpdatesEndTime -Value $e;
@@ -186,9 +189,9 @@ if ($beyond) {
     if ($SafeTest) {
         Write-Host "[INFO] SafeTest - would set target '$target' and create the daily task $TASK"
     } else {
-        if (-not (Test-Path $MARK)) { New-Item -Path $MARK -Force -ErrorAction SilentlyContinue | Out-Null }
-        Set-ItemProperty -Path $MARK -Name 'PauseUntil' -Value $target -Type String
         try {
+            if (-not (Test-Path $MARK)) { New-Item -Path $MARK -Force -ErrorAction Stop | Out-Null }
+            Set-ItemProperty -Path $MARK -Name 'PauseUntil' -Value $target -Type String -ErrorAction Stop
             Register-KeepAliveTask
             Write-Host "[OK]   Daily keep-alive task created ($TASK)"
         } catch {
