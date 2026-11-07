@@ -185,6 +185,8 @@ if ($beyond) {
 
     Write-Host "[WARN] This goes past the official 35-day limit ($human). Windows keeps a hidden 35-day cap,"
     Write-Host "[WARN] so a daily task will renew the pause. A major Windows update may still remove it - not guaranteed."
+    Write-Host "[WARN] The task keeps running even if Sindry is uninstalled. Without Sindry, delete the task $TASK in Task Scheduler,"
+    Write-Host "[WARN] then resume in Settings > Windows Update: resuming in Settings alone lasts until the task runs again."
 
     if ($SafeTest) {
         Write-Host "[INFO] SafeTest - would set target '$target' and create the daily task $TASK"
