@@ -4,9 +4,9 @@
 #
 # Valide les scripts, construit index.json depuis les fichiers memes qui seront
 # publies, le signe, et cree une release EN BROUILLON. Publier le brouillon,
-# c'est livrer : chaque installation de WinTool la proposera au demarrage.
+# c'est livrer : chaque installation de Sindry la proposera au demarrage.
 #
-# Les versions ne reculent jamais : WinTool refuse un catalogue plus ancien que
+# Les versions ne reculent jamais : Sindry refuse un catalogue plus ancien que
 # celui qu'il a installe.
 name: Release
 
@@ -19,7 +19,7 @@ permissions:
   contents: write
 
 env:
-  WINTOOL_REPO: burnout293/WinTool
+  SINDRY_REPO: burnout293/Sindry
 
 jobs:
   publier:
@@ -32,26 +32,26 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
-          repository: ${{ env.WINTOOL_REPO }}
-          path: wintool
+          repository: ${{ env.SINDRY_REPO }}
+          path: sindry
 
       - uses: actions/setup-node@v5
         with:
           node-version: 20
 
-      # La CLI Tauri signe au format que WinTool verifie. Installee depuis le
-      # package-lock de WinTool : la meme version que celle qui signe ses
+      # La CLI Tauri signe au format que Sindry verifie. Installee depuis le
+      # package-lock de Sindry : la meme version que celle qui signe ses
       # mises a jour.
       - name: Installer l'outil de signature
-        working-directory: wintool
+        working-directory: sindry
         run: npm ci
 
       # Les secrets sont-ils la, bien formes, et conformes a la cle publique
-      # compilee dans WinTool (src-tauri/catalogue.pub) ? Sinon on s'arrete ici
+      # compilee dans Sindry (src-tauri/catalogue.pub) ? Sinon on s'arrete ici
       # plutot que de publier un index que chaque installation refuserait.
       # Chaque echec sort en annotation, lisible sans fouiller le journal.
       - name: Verifier la cle de signature
-        working-directory: wintool
+        working-directory: sindry
         shell: pwsh
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Valider les scripts
         shell: pwsh
-        run: ./wintool/tools/lint-scripts.ps1 -Path ./catalogue/scripts -Strict
+        run: ./sindry/tools/lint-scripts.ps1 -Path ./catalogue/scripts -Strict
 
       # L'index se construit depuis le dossier de publication, pas depuis le
       # depot : ses empreintes portent sur les octets exacts qui seront mis en
@@ -72,14 +72,14 @@ jobs:
           $version = $tag -replace '^v', ''
           New-Item -ItemType Directory -Force publication | Out-Null
           Copy-Item catalogue/scripts/*.ps1 publication/
-          ./wintool/tools/construire-index-catalogue.ps1 -Scripts publication -Version $version -Tag $tag -Sortie publication/index.json
+          ./sindry/tools/construire-index-catalogue.ps1 -Scripts publication -Version $version -Tag $tag -Sortie publication/index.json
 
       # La cle et son mot de passe arrivent par GITHUB_ENV, ecrits par l'etape
       # « Verifier la cle de signature » apres nettoyage. NE PAS remettre ici
       # les secrets bruts : ils ecraseraient les valeurs nettoyees (c'est ainsi
-      # qu'a echoue la release 1.1.0 de WinTool).
+      # qu'a echoue la release 1.1.0 de Sindry).
       - name: Signer l'index
-        working-directory: wintool
+        working-directory: sindry
         shell: pwsh
         run: |
           npx tauri signer sign ../publication/index.json
@@ -95,13 +95,13 @@ jobs:
         run: |
           $tag = '${{ github.ref_name }}'
           $notes = @"
-          Catalogue officiel de scripts pour [WinTool](https://github.com/${{ env.WINTOOL_REPO }}).
+          Catalogue officiel de scripts pour [Sindry](https://github.com/${{ env.SINDRY_REPO }}).
 
-          WinTool installe et met a jour ce catalogue lui-meme : il n'y a rien a telecharger a la main.
+          Sindry installe et met a jour ce catalogue lui-meme : il n'y a rien a telecharger a la main.
           Chaque script est verifie avant d'etre ecrit, contre ``index.json``, dont la signature
           (``index.json.sig``) est controlee avec une cle compilee dans l'application.
 
-          Scripts sous licence MIT. Ils ne font pas partie de WinTool et ne relevent pas de sa licence.
+          Scripts sous licence MIT. Ils ne font pas partie de Sindry et ne relevent pas de sa licence.
           "@
           $fichiers = (Get-ChildItem publication).FullName
           gh release create $tag @fichiers --repo '${{ github.repository }}' --draft --title "Catalogue $tag" --notes $notes

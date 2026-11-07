@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : b4899144-84ed-4d97-a177-0e97f6db0c66
 ## lang          : en
 ## title         : Clear Windows internet cache
@@ -6,7 +6,7 @@
 ## category      : cleaning
 ## icon          : globe
 ## tags          : dns, flushdns, netbios, arp, network cache, resolver
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -14,9 +14,9 @@
 ## interruptible : true
 ## reboot        : false
 ## engine        : auto
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Steps          : [multi] Caches to clear — pick one or more
 ##   dns          : DNS cache — the list of website addresses Windows remembers
 ##   netbios      : NetBIOS name cache — local network name lookups
@@ -24,9 +24,9 @@
 ##   restartdns   : Restart the DNS service — the DNS Client service
 ##   registerdns  : Re-register with DNS — announces the PC to the network again
 ## SafeTest       : [bool] Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title          : Vider le cache Internet de Windows
 ## desc           : Vide les caches réseau de Windows, ce qui corrige de nombreux problèmes de « page qui ne charge pas »
 ## Steps          : Caches à vider — un ou plusieurs
@@ -36,16 +36,16 @@
 ##   restartdns   : Redémarrer le service DNS — le service Client DNS
 ##   registerdns  : Se réenregistrer dans le DNS — réannonce le PC sur le réseau
 ## SafeTest       : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Steps    = @("dns", "netbios", "arp", "restartdns", "registerdns")
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 

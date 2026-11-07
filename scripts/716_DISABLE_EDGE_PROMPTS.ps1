@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : f056a4ac-3742-4c2f-b73f-bf2541a22fd2
 ## lang          : en
 ## title         : Stop the "use Edge" nagging
@@ -6,7 +6,7 @@
 ## category      : apps
 ## icon          : app-window
 ## tags          : edge, default browser, nag, prompts, import, banners
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode          : [select] [scan] Action — turn the checked items off or on
 ##   disable     : Turn the checked items off
 ##   enable      : Turn the checked items on — removes the policies, back to defaults
@@ -30,9 +30,9 @@
 ##   searchnag   : Bing / Edge search nudges in Windows — pushes toward Edge from search
 ##   pindesktop  : Auto-pinning Edge — stops re-pinning Edge to the taskbar after updates
 ## SafeTest      : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title         : Stopper les incitations à utiliser Edge
 ## desc          : Empêche Windows et Edge de vous pousser à utiliser Edge ou à en faire le navigateur par défaut
 ## Mode          : Action — désactiver ou activer les éléments cochés
@@ -47,7 +47,7 @@
 ##   searchnag   : Incitations Bing / Edge dans Windows — la recherche qui pousse vers Edge
 ##   pindesktop  : Épinglage automatique d'Edge — évite le ré-épinglage à la barre après MAJ
 ## SafeTest      : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode     = "disable"
@@ -55,9 +55,9 @@ $CONFIG = @{
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -105,11 +105,11 @@ $Definitions = @{
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Meme cible que le corps :
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Meme cible que le corps :
 # disable = valeur presente et egale a Off ; enable = valeur absente.
 # state=ok si toutes les valeurs de l'element sont a la cible, sinon state=todo.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     foreach ($key in @('defaultnag', 'importnag', 'restoretabs', 'firstrunnag', 'startuppush', 'searchnag', 'pindesktop')) {
         $done = $true

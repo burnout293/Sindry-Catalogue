@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 0271c99f-f54c-44bd-b4b4-030008be2f62
 ## lang          : en
 ## title         : Caps Lock indicator
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : keyboard
 ## tags          : caps lock, num lock, indicator, osd, toggle keys, accessibility
-## version       : 1.1
+## version       : 1.2
 ## admin         : true
 ## risk          : medium
 ## duration      : fast
@@ -14,15 +14,15 @@
 ## interruptible : true
 ## reboot        : false
 ## engine        : auto
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode        : [select] Action — set the indicator up or remove it
 ##   enable    : Set up the indicator
 ##   disable   : Remove the indicator
 ## Method      : [select] How to show it — Windows has no built-in on-screen light
 ##   sound     : Beep — native Windows sound on Caps / Num / Scroll Lock, nothing installed
-##   resident  : On-screen badge — a small WinTool helper that runs in the background and shows a badge
+##   resident  : On-screen badge — a small Sindry helper that runs in the background and shows a badge
 ##   thirdparty : Third-party app — installs an open-source indicator (CapsLock Indicator) with winget
 ## WatchKeys   : [multi]  Keys to watch — badge method only
 ##   caps      : Caps Lock
@@ -39,9 +39,9 @@
 ##   ms4000     : 4 seconds
 ## PackageId   : [hidden] winget package id for the third-party method
 ## SafeTest    : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title       : Voyant Verr Maj
 ## desc        : Signale quand Verr Maj est actif - un son, une pastille à l'écran, ou une petite appli tierce
 ## Mode        : Action — installer le voyant ou le retirer
@@ -49,7 +49,7 @@
 ##   disable   : Retirer le voyant
 ## Method      : Comment l'afficher — Windows n'a pas de voyant à l'écran natif
 ##   sound     : Bip — son natif de Windows sur Verr Maj / Num / Défil, rien d'installé
-##   resident  : Pastille à l'écran — un petit assistant WinTool en arrière-plan qui affiche une pastille
+##   resident  : Pastille à l'écran — un petit assistant Sindry en arrière-plan qui affiche une pastille
 ##   thirdparty : Appli tierce — installe un indicateur open-source (CapsLock Indicator) via winget
 ## WatchKeys   : Touches à surveiller — méthode pastille uniquement
 ##   caps      : Verr Maj
@@ -66,7 +66,7 @@
 ##   ms4000     : 4 secondes
 ## PackageId   : Identifiant winget pour la méthode tierce
 ## SafeTest    : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode       = "enable"
@@ -78,9 +78,9 @@ $CONFIG = @{
     SafeTest   = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -89,7 +89,7 @@ if ($env:WINTOOL_CONFIG) {
 #
 # Windows n'a AUCUN voyant a l'ecran natif pour Verr Maj. Trois methodes :
 #   sound      : active le son des touches bascule (ToggleKeys). 100% natif.
-#   resident   : depose un assistant PowerShell dans %ProgramData%\WinTool et une
+#   resident   : depose un assistant PowerShell dans %ProgramData%\Sindry et une
 #                tache planifiee a l'ouverture de session. C'est le PREMIER script
 #                "resident" du catalogue : quelque chose tourne en permanence.
 #   thirdparty : installe un outil open-source via winget (surface de confiance).
@@ -101,9 +101,9 @@ $SafeTest = ("$($CONFIG.SafeTest)" -eq 'True')
 $Enable   = ($CONFIG.Mode -ne 'disable')
 $errors   = 0
 
-$helperDir  = Join-Path $env:ProgramData 'WinTool'
+$helperDir  = Join-Path $env:ProgramData 'Sindry'
 $helperFile = Join-Path $helperDir 'capslock-osd.ps1'
-$taskName   = 'WinTool-CapsLockIndicator'
+$taskName   = 'Sindry-CapsLockIndicator'
 
 function Get-WingetPath {
     $cmd = Get-Command winget.exe -ErrorAction SilentlyContinue
@@ -133,13 +133,13 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Add-Type @'
 using System;using System.Runtime.InteropServices;
-public class WTKey { [DllImport("user32.dll")] public static extern short GetKeyState(int k); }
+public class LockKeyState { [DllImport("user32.dll")] public static extern short GetKeyState(int k); }
 '@
 `$keys = @($entries)
 `$pos = '$($CONFIG.Position)'
 `$dur = $dur
 `$state = @{}
-foreach (`$k in `$keys) { `$state[`$k.Name] = ([WTKey]::GetKeyState(`$k.VK) -band 1) }
+foreach (`$k in `$keys) { `$state[`$k.Name] = ([LockKeyState]::GetKeyState(`$k.VK) -band 1) }
 
 `$form = New-Object System.Windows.Forms.Form
 `$form.FormBorderStyle = 'None'; `$form.TopMost = `$true; `$form.ShowInTaskbar = `$false
@@ -171,7 +171,7 @@ function Show-Badge(`$text) {
 `$poll.Interval = 200
 `$poll.Add_Tick({
     foreach (`$k in `$keys) {
-        `$s = ([WTKey]::GetKeyState(`$k.VK) -band 1)
+        `$s = ([LockKeyState]::GetKeyState(`$k.VK) -band 1)
         if (`$s -ne `$state[`$k.Name]) {
             `$state[`$k.Name] = `$s
             if (`$s -eq 1) { Show-Badge "`$(`$k.Name) : ON" } else { Show-Badge "`$(`$k.Name) : OFF" }
@@ -208,7 +208,7 @@ switch ("$($CONFIG.Method)") {
     # --- 2) PASTILLE RESIDENTE ----------------------------------------------
     'resident' {
         if ($Enable) {
-            Write-Host "[WARN] This installs a background helper that runs at every logon - the first resident WinTool script"
+            Write-Host "[WARN] This installs a background helper that runs at every logon - the first resident Sindry script"
             Write-Host "[STEP] 1/3 Writing the helper"
             if ($SafeTest) {
                 Write-Host "[INFO] SafeTest - would write $helperFile"

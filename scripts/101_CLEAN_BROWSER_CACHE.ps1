@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 79649b36-5fc6-41e8-8c9a-47a344461e0f
 ## lang          : en
 ## title         : Clear browser data
@@ -6,7 +6,7 @@
 ## category      : cleaning
 ## icon          : globe
 ## tags          : browser, cache, cookies, history, edge, chrome, firefox, brave, opera
-## version       : 3.1
+## version       : 3.2
 ## admin         : false
 ## risk          : medium
 ## duration      : fast
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : bars
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Browsers      : [multi]  Browsers — pick one or more
 ##   edge        : Microsoft Edge
 ##   chrome      : Google Chrome
@@ -33,9 +33,9 @@
 ##   sitedata    : Site data — local storage and databases kept by websites
 ## CloseBrowsers : [bool]   Close open browsers — required to clear anything, an open browser is skipped otherwise
 ## SafeTest      : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title         : Nettoyer les données des navigateurs
 ## desc          : Libère de la place et nettoie les données de navigation - vos favoris et mots de passe ne sont jamais touchés
 ## Browsers      : Navigateurs — un ou plusieurs
@@ -51,7 +51,7 @@
 ##   sitedata    : Données de sites — stockage local et bases gardées par les sites
 ## CloseBrowsers : Fermer les navigateurs ouverts — nécessaire pour nettoyer, sinon un navigateur ouvert est ignoré
 ## SafeTest      : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Browsers      = @("edge", "chrome", "firefox", "brave", "opera")
@@ -60,9 +60,9 @@ $CONFIG = @{
     SafeTest      = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -211,7 +211,7 @@ function Measure-Browser {
 # ANALYSE - on mesure, on ne supprime ni ne ferme RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     $order = @('edge', 'chrome', 'firefox', 'brave', 'opera')
     $i = 0
     foreach ($b in $order) {

@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : b1ac0e0b-ef61-48b9-b609-9a900b1521fa
 ## lang          : en
 ## title         : Clean temporary files
@@ -6,7 +6,7 @@
 ## category      : cleaning
 ## icon          : broom
 ## tags          : temp, temporary, cache, dumps, disk space
-## version       : 2.2
+## version       : 2.3
 ## admin         : true
 ## risk          : low
 ## duration      : medium
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : donut
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Targets      : [multi]  What to clean — pick one or more
 ##   usertemp   : [group:Junk] User temporary files — the TEMP folder of each user
 ##   wintemp    : [group:Junk] Windows temporary files — C:\Windows\Temp
@@ -36,17 +36,17 @@
 ##   h48        : Older than 2 days
 ##   h168       : Older than 1 week
 ## SafeTest     : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## Junk       : [group] Junk files — Temporary files, reports and crash dumps
 ## OldUpdates : [group] Downloaded updates — What Windows keeps after sharing updates
 ## Logs       : [group] Old logs — Setup and servicing logs
 ## FreeSpace  : Free space on drive C:
 ## UpdateNote : [note:warn] If an update is waiting to be installed, Windows will download it again.
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Supprimer les fichiers temporaires
 ## desc         : Supprime les fichiers temporaires, rapports d'erreur et vidages laissés par Windows et les applications
 ## Targets      : Quoi nettoyer — un ou plusieurs éléments
@@ -70,7 +70,7 @@
 ## Logs       : Anciens journaux — Journaux d'installation et de maintenance
 ## FreeSpace  : Espace libre sur le disque C:
 ## UpdateNote : Si une mise à jour attend d'être installée, Windows la téléchargera de nouveau.
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Targets     = @("usertemp", "wintemp", "reports", "dumps", "deliveryopt")
@@ -79,9 +79,9 @@ $CONFIG = @{
     SafeTest    = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -89,12 +89,12 @@ if ($env:WINTOOL_CONFIG) {
 # Code et sortie en anglais, commentaires en francais (docs/FORMAT_SCRIPT.md).
 #
 # Le script est lance deux fois (contrat du mode analyse, 1.4) :
-#   1. ANALYSE  — WinTool pose WINTOOL_MODE=scan. Le script MESURE chaque cible
+#   1. ANALYSE  — Sindry pose SINDRY_MODE=scan. Le script MESURE chaque cible
 #      et ne supprime RIEN. Il ecrit une ligne [FIND] par choix de Targets.
-#   2. ACTION   — WinTool relance le script sans WINTOOL_MODE, avec dans
+#   2. ACTION   — Sindry relance le script sans SINDRY_MODE, avec dans
 #      $CONFIG les seuls choix coches. Le code d'action existant lit $CONFIG.
 #
-# Seul, en double-clic (sans WinTool), il agit avec ses valeurs par defaut.
+# Seul, en double-clic (sans Sindry), il agit avec ses valeurs par defaut.
 # La MEME fonction (Get-TargetSpecs) donne les chemins a l'analyse et a l'action :
 # ce que l'analyse mesure est exactement ce que l'action supprime.
 # ==============================================================================
@@ -189,7 +189,7 @@ function Measure-Target {
 # 1. ANALYSE — on mesure, on decrit, on ne supprime RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
 
     $order = @('usertemp', 'wintemp', 'reports', 'dumps', 'thumbnails', 'deliveryopt', 'oldlogs')
     $i = 0

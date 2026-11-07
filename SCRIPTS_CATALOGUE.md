@@ -1,4 +1,4 @@
-# WinTool — Catalogue des scripts officiels (`Default\`)
+# Sindry — Catalogue des scripts officiels (`Default\`)
 
 Version 0.1 — 23/09/2026 · Statut : **liste de besoins, aucun script écrit**
 

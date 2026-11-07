@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 29f03b7b-bdc8-4e77-857b-e7b772524a8c
 ## lang          : en
 ## title         : Reduce browser telemetry
@@ -6,7 +6,7 @@
 ## category      : privacy
 ## icon          : shield-check
 ## tags          : telemetry, browser, edge, chrome, firefox, brave, opera, policy
-## version       : 1.2
+## version       : 1.3
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : tree
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode        : [select] [scan] Action — turn browser telemetry off or on
 ##   disable   : Disable telemetry — reduce what browsers report
 ##   enable    : Enable telemetry — remove the policies, back to each browser's default
@@ -31,9 +31,9 @@
 ##   opera     : Opera
 ## Details     : [items] [view:tree] Exact changes — expand a browser to see each policy, current -> target
 ## SafeTest    : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title       : Réduire la télémétrie des navigateurs
 ## desc        : Coupe les données d'usage que les navigateurs envoient à leur éditeur, via des stratégies de navigateur géré
 ## Mode        : Action — désactiver ou activer la télémétrie des navigateurs
@@ -47,7 +47,7 @@
 ##   opera     : Opera
 ## Details     : Modifications exactes — dépliez un navigateur pour voir chaque stratégie, actuelle -> cible
 ## SafeTest    : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode     = "disable"
@@ -56,9 +56,9 @@ $CONFIG = @{
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -114,13 +114,13 @@ function Format-Key([string] $p) { return ($p -replace '^(HK[A-Z]+):', '$1') }
 function Format-Val($v) { if ($null -eq $v) { return 'not set' } return "$v" }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) - lecture seule. Arbre : un parent par navigateur,
+# ANALYSE (SINDRY_MODE=scan) - lecture seule. Arbre : un parent par navigateur,
 # un enfant par strategie (nom: actuel -> cible, et le chemin de la cle).
 # Cible : disable = valeur Off ; enable = valeur supprimee ("removed").
 # Id d'un enfant : "<navigateur>-<index>". Coche d'office si pas a la cible ET
 # navigateur dans Browsers.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current policies"
     $selected = @($CONFIG.Browsers | ForEach-Object { "$_" })
     foreach ($key in @('edge', 'chrome', 'firefox', 'brave', 'opera')) {

@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 02a64eeb-44ae-4e3c-8de0-d135a4275a4e
 ## lang          : en
 ## title         : Turn off accidental accessibility shortcuts
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : keyboard
 ## tags          : sticky keys, filter keys, toggle keys, accessibility, prompt
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode         : [select] [scan] Action — turn the checked items off or on
 ##   disable    : Turn the checked items off
 ##   enable     : Turn the checked items on — the Windows defaults
@@ -27,9 +27,9 @@
 ##   toggle     : Toggle Keys — the prompt after holding Num Lock for 5 seconds
 ## FullyDisable : [bool] [scan] Also disable the feature itself — not just the shortcut and prompt
 ## SafeTest     : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Désactiver les raccourcis d'accessibilité accidentels
 ## desc         : Stoppe les pop-ups qui apparaissent quand on appuie plusieurs fois sur Maj ou Verr Num par accident
 ## Mode         : Action — désactiver ou activer les éléments cochés
@@ -41,7 +41,7 @@
 ##   toggle     : Touches bascule — l'invite après 5 secondes sur Verr Num
 ## FullyDisable : Désactiver aussi la fonction elle-même — pas seulement le raccourci et l'invite
 ## SafeTest     : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode         = "disable"
@@ -50,9 +50,9 @@ $CONFIG = @{
     SafeTest     = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -77,10 +77,10 @@ $Definitions = @{
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Pour chaque element, state=ok si
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Pour chaque element, state=ok si
 # Flags est deja a la cible du Mode (et de FullyDisable), sinon state=todo.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     foreach ($key in @('sticky', 'filter', 'toggle')) {
         $def = $Definitions[$key]

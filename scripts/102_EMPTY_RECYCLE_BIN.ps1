@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 17b895a4-0675-404a-a5db-b0943eb08803
 ## lang          : en
 ## title         : Empty the recycle bin
@@ -6,7 +6,7 @@
 ## category      : cleaning
 ## icon          : trash-2
 ## tags          : recycle bin, trash, disk space
-## version       : 2.2
+## version       : 2.3
 ## admin         : false
 ## risk          : medium
 ## duration      : fast
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : bars
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Drives     : [multi] Recycle bins to empty — pick one or more drives
 ##   c        : [group:Bin] Drive C:
 ##   d        : [group:Bin] Drive D:
@@ -28,14 +28,14 @@
 ##   g        : [group:Bin] Drive G:
 ##   h        : [group:Bin] Drive H:
 ## SafeTest   : [bool]  Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## Bin      : [group] Recycle bin — Files waiting to be permanently deleted
 ## Reminder : [note:warn] Emptying the recycle bin deletes these files for good. They cannot be restored afterwards.
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title      : Vider la corbeille
 ## desc       : Supprime définitivement les fichiers de la corbeille, disque par disque
 ## Drives     : Corbeilles à vider — un ou plusieurs disques
@@ -48,16 +48,16 @@
 ## SafeTest   : Test sans risque — simule chaque modification, ne change rien
 ## Bin        : Corbeille — Fichiers en attente de suppression définitive
 ## Reminder   : Vider la corbeille supprime ces fichiers pour de bon. Ils ne pourront plus être restaurés.
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Drives   = @("c", "d", "e", "f", "g", "h")
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -70,9 +70,9 @@ if ($env:WINTOOL_CONFIG) {
 # l'action : ce que l'analyse mesure par disque est ce que l'action supprime.
 #
 # Le script est lance deux fois (contrat du mode analyse, 1.4) :
-#   1. ANALYSE (WINTOOL_MODE=scan) — une ligne [FIND] par disque, avec sa taille.
+#   1. ANALYSE (SINDRY_MODE=scan) — une ligne [FIND] par disque, avec sa taille.
 #      La vue "bars" affiche une barre proportionnelle par disque. Rien supprime.
-#   2. ACTION — WinTool renvoie dans $CONFIG.Drives les seules lettres cochees.
+#   2. ACTION — Sindry renvoie dans $CONFIG.Drives les seules lettres cochees.
 # ==============================================================================
 
 $SafeTest = ("$($CONFIG.SafeTest)" -eq 'True')
@@ -119,7 +119,7 @@ function Get-FixedDriveLetters {
 # 1. ANALYSE — on mesure par disque, on ne supprime RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
 
     Write-Output "[STEP] 1/1 Reading the recycle bin"
     Write-Output "[NOTE] Reminder"

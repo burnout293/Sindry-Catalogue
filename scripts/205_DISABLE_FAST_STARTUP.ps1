@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 0e87babc-b38e-4668-af4b-2168879f708f
 ## lang          : en
 ## title         : Disable fast startup
@@ -6,7 +6,7 @@
 ## category      : performance
 ## icon          : power
 ## tags          : fast startup, hiberboot, shutdown, boot, restart required, redémarrage
-## version       : 2.1
+## version       : 2.2
 ## admin         : true
 ## risk          : low
 ## duration      : fast
@@ -15,32 +15,32 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode      : [select] Action — turn fast startup off or on
 ##   disable : Disable fast startup
 ##   enable  : Enable fast startup — the Windows default
 ## SafeTest  : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title     : Désactiver le démarrage rapide
 ## desc      : Fait de l'arrêt un vrai arrêt - corrige de nombreux problèmes de mises à jour et de pilotes
 ## Mode      : Action — désactiver ou activer le démarrage rapide
 ##   disable : Désactiver le démarrage rapide
 ##   enable  : Activer le démarrage rapide — le réglage de Windows
 ## SafeTest  : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode     = "disable"
     SafeTest = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -59,11 +59,11 @@ $regName  = 'HiberbootEnabled'
 if ($CONFIG.Mode -eq 'enable') { $wanted = 1; $label = 'enabled' } else { $wanted = 0; $label = 'disabled' }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) - lecture seule. Pour chaque choix de Mode :
+# ANALYSE (SINDRY_MODE=scan) - lecture seule. Pour chaque choix de Mode :
 # current = reglage en place (absent = defaut Windows = active),
 # recommended = choix par defaut du script (disable).
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading the current state"
     $cur = (Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue).$regName
     $isEnabled = ($null -eq $cur -or [int]$cur -ne 0)

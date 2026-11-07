@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : f58c6f58-da60-4281-a03b-775e0b3c86d5
 ## lang          : en
 ## title         : Control window snapping
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : layout-grid
 ## tags          : snap, snap assist, layouts, windows, docking
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -15,9 +15,9 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode            : [select] [scan] Action — turn the checked items off or on
 ##   disable       : Turn the checked items off
 ##   enable        : Turn the checked items on — the Windows defaults
@@ -30,9 +30,9 @@
 ##   allsnap       : All snapping — turns off window snapping entirely
 ## RestartExplorer : [bool]   Apply immediately — restarts the Explorer so changes show at once
 ## SafeTest        : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title           : Maîtriser l'ancrage des fenêtres
 ## desc            : Désactive les suggestions et dispositions d'ancrage qui apparaissent en déplaçant ou redimensionnant les fenêtres
 ## Mode            : Action — désactiver ou activer les éléments cochés
@@ -47,7 +47,7 @@
 ##   allsnap       : Tout l'ancrage — désactive complètement l'ancrage des fenêtres
 ## RestartExplorer : Appliquer tout de suite — redémarre l'Explorateur pour un effet immédiat
 ## SafeTest        : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode            = "disable"
@@ -56,9 +56,9 @@ $CONFIG = @{
     SafeTest        = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -88,10 +88,10 @@ $Definitions = @{
 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) — lecture seule. Pour chaque element, state=ok si
+# ANALYSE (SINDRY_MODE=scan) — lecture seule. Pour chaque element, state=ok si
 # la valeur est deja a la cible du Mode choisi, sinon state=todo.
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading current settings"
     foreach ($key in @('assist', 'flyout', 'bar', 'fill', 'jointresize', 'allsnap')) {
         $def = $Definitions[$key]

@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : b77f1dc0-a8b8-4fde-9d01-68c5b2258460
 ## lang          : en
 ## title         : Export browser data
@@ -6,7 +6,7 @@
 ## category      : tools
 ## icon          : upload
 ## tags          : browser, export, bookmarks, backup, migration, edge, chrome, firefox
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : medium
 ## duration      : medium
@@ -14,9 +14,9 @@
 ## interruptible : true
 ## reboot        : false
 ## engine        : auto
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Browser      : [select] Source browser — the browser to export from
 ##   edge       : Microsoft Edge
 ##   chrome     : Google Chrome
@@ -43,9 +43,9 @@
 ## Password     : [string] Package password — only for the password protection
 ## KeyFilePath  : [string] Key file — full path of the file used as the key
 ## SafeTest     : [bool]   Safe test — lists what would be exported without reading secrets
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Exporter les données du navigateur
 ## desc         : Enregistre vos favoris et données de navigateur dans un paquet à emporter sur un autre PC
 ## Browser      : Navigateur source — le navigateur d'où exporter
@@ -74,7 +74,7 @@
 ## Password     : Mot de passe du paquet — seulement pour la protection par mot de passe
 ## KeyFilePath  : Fichier clé — chemin complet du fichier utilisé comme clé
 ## SafeTest     : Test sans risque — liste ce qui serait exporté sans lire les secrets
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Browser     = "edge"
@@ -87,9 +87,9 @@ $CONFIG = @{
     SafeTest    = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -280,7 +280,7 @@ Write-Host "[STEP] 2/4 Collecting files"
 $items = @($CONFIG.Items)
 if ($items.Count -eq 0) { Write-Host "[WARN] Nothing selected"; Write-Host "[DONE] Nothing exported"; exit 0 }
 
-$staging = Join-Path $env:TEMP ("wt-export-" + [guid]::NewGuid().ToString('N'))
+$staging = Join-Path $env:TEMP ("sindry-export-" + [guid]::NewGuid().ToString('N'))
 $toCopy  = @()   # @{ Src; Rel }
 $totalSize = [long]0
 
@@ -338,7 +338,7 @@ try {
     }
     # Manifeste
     $manifest = @{ browser = $CONFIG.Browser; kind = $def.Kind; items = $items; secretMode = $CONFIG.SecretMode
-                   protection = $CONFIG.Protection; created = (Get-Date).ToString('s'); tool = 'WinTool 620' }
+                   protection = $CONFIG.Protection; created = (Get-Date).ToString('s'); tool = 'Sindry 620' }
     $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $staging 'manifest.json') -Encoding UTF8
     Write-Host "[OK]   $($toCopy.Count) item(s) staged"
 } catch {

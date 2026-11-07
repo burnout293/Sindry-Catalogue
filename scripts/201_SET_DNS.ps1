@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : 1e8ba83e-a871-4401-8304-df96f542bf8c
 ## lang          : en
 ## title         : Use a faster DNS
@@ -6,7 +6,7 @@
 ## category      : performance
 ## icon          : zap
 ## tags          : dns, network, internet, cloudflare, google, quad9, adguard
-## version       : 2.2
+## version       : 2.3
 ## admin         : true
 ## risk          : medium
 ## duration      : fast
@@ -17,9 +17,9 @@
 ## scan          : true
 ## view          : chart
 ## panels        : plan progress
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode         : [select] Action — use a DNS provider or go back to automatic
 ##   apply      : Use the chosen DNS provider
 ##   restore    : Go back to the automatic DNS of your internet box
@@ -36,13 +36,13 @@
 ## ApplyToIPv6  : [bool]   Apply to IPv6 — equivalent resolvers
 ## FlushCache   : [hidden] Flush the resolver cache afterwards
 ## SafeTest     : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:REPORT
+## SINDRY:REPORT
 ## SpeedNote : [note:info] Response time is measured from this PC right now. The fastest provider is preselected.
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Utiliser un Internet plus rapide
 ## desc         : Accélère la navigation en utilisant un service plus rapide pour trouver les sites
 ## Mode         : Action — utiliser un fournisseur DNS ou revenir à l'automatique
@@ -62,7 +62,7 @@
 ## FlushCache   : Vider le cache de résolution ensuite
 ## SafeTest     : Test sans risque — simule chaque modification, ne change rien
 ## SpeedNote    : Le temps de réponse est mesuré depuis ce PC, maintenant. Le fournisseur le plus rapide est présélectionné.
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode        = "apply"
@@ -72,9 +72,9 @@ $CONFIG = @{
     SafeTest    = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -90,8 +90,8 @@ if ($env:WINTOOL_CONFIG) {
 # current= marque le fournisseur deja en place. La mesure est en LECTURE SEULE.
 #
 # Le script est lance deux fois (contrat du mode analyse, 1.4) :
-#   1. ANALYSE (WINTOOL_MODE=scan) — mesure, [FIND] DnsProvider.<id> ms=... Rien ecrit.
-#   2. ACTION — WinTool renvoie dans $CONFIG.DnsProvider le choix retenu.
+#   1. ANALYSE (SINDRY_MODE=scan) — mesure, [FIND] DnsProvider.<id> ms=... Rien ecrit.
+#   2. ACTION — Sindry renvoie dans $CONFIG.DnsProvider le choix retenu.
 # ==============================================================================
 
 $SafeTest = ("$($CONFIG.SafeTest)" -eq 'True')
@@ -147,7 +147,7 @@ function Get-CurrentProviderId {
 # 1. ANALYSE — on mesure la latence de chaque fournisseur, on ne modifie RIEN
 # ==============================================================================
 
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
 
     Write-Output "[NOTE] SpeedNote"
     $current = Get-CurrentProviderId

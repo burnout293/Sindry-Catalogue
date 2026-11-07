@@ -1,4 +1,4 @@
-# Verification a chaque poussee : les scripts passent le validateur de WinTool,
+# Verification a chaque poussee : les scripts passent le validateur de Sindry,
 # et l'index se construit. Rien n'est signe ni publie ici.
 #
 # Tout tourne sous Windows : le validateur et l'outil d'index sont des scripts
@@ -17,7 +17,7 @@ concurrency:
 env:
   # Le depot de l'application : il porte le validateur, l'outil d'index et la
   # cle publique du catalogue. Un fork le remplace ici, et dans release.yml.
-  WINTOOL_REPO: burnout293/WinTool
+  SINDRY_REPO: burnout293/Sindry
 
 jobs:
   verifier:
@@ -30,17 +30,17 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
-          repository: ${{ env.WINTOOL_REPO }}
-          path: wintool
+          repository: ${{ env.SINDRY_REPO }}
+          path: sindry
 
-      # Le meme validateur, en mode strict, que celui de WinTool : un script du
+      # Le meme validateur, en mode strict, que celui de Sindry : un script du
       # catalogue officiel est conforme a 100 %, sans exception.
       - name: Valider les scripts
         shell: pwsh
-        run: ./wintool/tools/lint-scripts.ps1 -Path ./catalogue/scripts -Strict
+        run: ./sindry/tools/lint-scripts.ps1 -Path ./catalogue/scripts -Strict
 
       # Un nom de fichier refuse, un id manquant ou en double se voient ici,
       # pas le jour de la publication.
       - name: Construire l'index (essai)
         shell: pwsh
-        run: ./wintool/tools/construire-index-catalogue.ps1 -Scripts ./catalogue/scripts -Version 0.0.0 -Sortie index-essai.json
+        run: ./sindry/tools/construire-index-catalogue.ps1 -Scripts ./catalogue/scripts -Version 0.0.0 -Sortie index-essai.json

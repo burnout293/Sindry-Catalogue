@@ -1,12 +1,12 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : af01f2a0-1bd9-4c0d-83e2-8bc2108a835c
 ## lang          : en
 ## title         : Import browser data
-## desc          : Restores a browser package made by WinTool - your current profile is backed up first
+## desc          : Restores a browser package made by Sindry - your current profile is backed up first
 ## category      : tools
 ## icon          : download
 ## tags          : browser, import, restore, bookmarks, migration, edge, chrome, firefox
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : high
 ## duration      : medium
@@ -14,9 +14,9 @@
 ## interruptible : true
 ## reboot        : false
 ## engine        : auto
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Browser      : [select] Destination browser — the browser to import into
 ##   edge       : Microsoft Edge
 ##   chrome     : Google Chrome
@@ -40,11 +40,11 @@
 ## Password     : [string] Package password — only for the password protection
 ## KeyFilePath  : [string] Key file — full path of the key file
 ## SafeTest     : [bool]   Safe test — lists what would be restored, changes nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title        : Importer les données du navigateur
-## desc         : Restaure un paquet créé par WinTool - votre profil actuel est sauvegardé d'abord
+## desc         : Restaure un paquet créé par Sindry - votre profil actuel est sauvegardé d'abord
 ## Browser      : Navigateur de destination — le navigateur où importer
 ##   edge       : Microsoft Edge
 ##   chrome     : Google Chrome
@@ -68,7 +68,7 @@
 ## Password     : Mot de passe du paquet — seulement pour la protection par mot de passe
 ## KeyFilePath  : Fichier clé — chemin complet du fichier clé
 ## SafeTest     : Test sans risque — liste ce qui serait restauré, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Browser     = "edge"
@@ -80,9 +80,9 @@ $CONFIG = @{
     SafeTest    = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -133,7 +133,7 @@ function Unprotect-File {
     param([string] $InFile, [string] $OutFile, [string] $Pass)
     $all = [System.IO.File]::ReadAllBytes($InFile)
     $magic = [System.Text.Encoding]::ASCII.GetString($all, 0, 4)
-    if ($magic -ne 'WTB1') { throw "not a WinTool encrypted package" }
+    if ($magic -ne 'WTB1') { throw "not a Sindry encrypted package" }
     $salt = $all[4..19]; $iv = $all[20..35]
     $data = $all[36..($all.Length - 1)]
     $kdf = New-Object System.Security.Cryptography.Rfc2898DeriveBytes($Pass, $salt, 200000)
@@ -205,7 +205,7 @@ if (@(Get-Process -Name $def.Proc -ErrorAction SilentlyContinue).Count -gt 0) {
 
 # --- 1/4 : ouverture du paquet ----------------------------------------------
 Write-Host "[STEP] 1/4 Opening the package"
-$work = Join-Path $env:TEMP ("wt-import-" + [guid]::NewGuid().ToString('N'))
+$work = Join-Path $env:TEMP ("sindry-import-" + [guid]::NewGuid().ToString('N'))
 $expanded = Join-Path $work 'pkg'
 try {
     New-Item -ItemType Directory -Path $expanded -Force -ErrorAction Stop | Out-Null
@@ -264,7 +264,7 @@ Write-Host "[STEP] 3/4 Backing up the current profile"
 $stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
 $pkgDir  = Split-Path $CONFIG.PackagePath -Parent
 if (-not $pkgDir) { $pkgDir = $env:TEMP }
-$restore = Join-Path $pkgDir "wintool-restore-$($CONFIG.Browser)-$stamp.zip"
+$restore = Join-Path $pkgDir "sindry-restore-$($CONFIG.Browser)-$stamp.zip"
 $bakStage = Join-Path $work 'backup'
 try {
     New-Item -ItemType Directory -Path $bakStage -Force -ErrorAction Stop | Out-Null

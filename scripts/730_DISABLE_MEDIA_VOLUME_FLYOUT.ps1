@@ -1,4 +1,4 @@
-﻿## WINTOOL:START
+﻿## SINDRY:START
 ## id            : b6da96ca-070c-44b5-83e0-4a0cfcf764d5
 ## lang          : en
 ## title         : Bring back the simple volume bar
@@ -6,7 +6,7 @@
 ## category      : customize
 ## icon          : monitor
 ## tags          : volume, media, flyout, mtc, osd
-## version       : 1.1
+## version       : 1.2
 ## admin         : false
 ## risk          : low
 ## duration      : fast
@@ -15,17 +15,17 @@
 ## reboot        : false
 ## engine        : auto
 ## scan          : true
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:OPTIONS
+## SINDRY:OPTIONS
 ## Mode            : [select] Action — which volume indicator to use
 ##   disable       : Use the old simple volume bar
 ##   enable        : Use the modern media panel — the Windows default
 ## RestartExplorer : [bool]   Apply immediately — restarts the Explorer so the change shows at once
 ## SafeTest        : [bool]   Safe test — simulates every change, modifies nothing
-## WINTOOL:END
+## SINDRY:END
 
-## WINTOOL:LANG fr
+## SINDRY:LANG fr
 ## title           : Revenir au volume simple
 ## desc            : Remplace le gros panneau média moderne par l'ancien bandeau de volume discret
 ## Mode            : Action — quel indicateur de volume utiliser
@@ -33,7 +33,7 @@
 ##   enable        : Utiliser le panneau média moderne — le défaut de Windows
 ## RestartExplorer : Appliquer tout de suite — redémarre l'Explorateur pour un effet immédiat
 ## SafeTest        : Test sans risque — simule chaque modification, ne change rien
-## WINTOOL:END
+## SINDRY:END
 
 $CONFIG = @{
     Mode            = "disable"
@@ -41,9 +41,9 @@ $CONFIG = @{
     SafeTest        = $false
 }
 
-# --- WinTool override (ne pas supprimer) ---
-if ($env:WINTOOL_CONFIG) {
-    ($env:WINTOOL_CONFIG | ConvertFrom-Json).PSObject.Properties |
+# --- Sindry override (ne pas supprimer) ---
+if ($env:SINDRY_CONFIG) {
+    ($env:SINDRY_CONFIG | ConvertFrom-Json).PSObject.Properties |
         ForEach-Object { $CONFIG[$_.Name] = $_.Value }
 }
 
@@ -63,11 +63,11 @@ $path     = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\MTCUVC'
 if ($Simple) { $wanted = 0 } else { $wanted = 1 }
 
 # ==============================================================================
-# ANALYSE (WINTOOL_MODE=scan) - lecture seule. Bandeau simple actif si
+# ANALYSE (SINDRY_MODE=scan) - lecture seule. Bandeau simple actif si
 # EnableMtcUvc = 0 ; absent = defaut Windows (panneau moderne).
 # recommended = choix par defaut (disable).
 # ==============================================================================
-if ($env:WINTOOL_MODE -eq 'scan') {
+if ($env:SINDRY_MODE -eq 'scan') {
     Write-Output "[STEP] 1/1 Reading the current volume indicator"
     $cur = (Get-ItemProperty -Path $path -Name 'EnableMtcUvc' -ErrorAction SilentlyContinue).EnableMtcUvc
     $isSimple = ($null -ne $cur -and [int]$cur -eq 0)
