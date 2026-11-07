@@ -98,7 +98,7 @@
 #    alignement. « Rétablir » remet les valeurs d'origine de Windows ; une
 #    valeur de stratégie, qui n'existe pas d'origine, est supprimée.
 #
-#  LE CAS DES WIDGETS (1.2)
+#  LE CAS DES WIDGETS (1.3)
 #    Le pilote UCPD de Windows (User Choice Protection Driver, livré par les
 #    mises à jour depuis 2024, sous Windows 10 comme sous Windows 11) refuse à
 #    PowerShell d'écrire la valeur du bouton Widgets, même en administrateur :
@@ -117,7 +117,7 @@
 #
 #  DROITS
 #    Les stratégies (HKLM, et HKCU\Software\Policies) ne s'écrivent qu'en
-#    administrateur : admin = true depuis la 1.2. Sans les droits, les autres
+#    administrateur : admin = true depuis la 1.3. Sans les droits, les autres
 #    réglages sont tout de même appliqués, et chaque stratégie manquée sort en
 #    E101.
 #
