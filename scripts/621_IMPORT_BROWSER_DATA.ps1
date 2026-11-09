@@ -128,12 +128,13 @@ function Resolve-ProfileDir {
     return (Join-Path $Def.Root $Def.Profile)
 }
 
-# Dechiffre un paquet WTB1 (AES-256 PBKDF2) vers un zip temporaire.
+# Dechiffre un paquet SDB1 (AES-256 PBKDF2) vers un zip temporaire. Un paquet chiffre par
+# le 620 1.1 ou avant s'ouvre avec le 621 1.1, celui du catalogue 1.6.1.
 function Unprotect-File {
     param([string] $InFile, [string] $OutFile, [string] $Pass)
     $all = [System.IO.File]::ReadAllBytes($InFile)
     $magic = [System.Text.Encoding]::ASCII.GetString($all, 0, 4)
-    if ($magic -ne 'WTB1') { throw "not a Sindry encrypted package" }
+    if ($magic -ne 'SDB1') { throw "not a Sindry encrypted package - one made by version 1.1 or older opens with version 1.1 of this script (catalogue 1.6.1)" }
     $salt = $all[4..19]; $iv = $all[20..35]
     $data = $all[36..($all.Length - 1)]
     $kdf = New-Object System.Security.Cryptography.Rfc2898DeriveBytes($Pass, $salt, 200000)
