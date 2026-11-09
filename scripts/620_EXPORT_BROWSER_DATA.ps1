@@ -211,7 +211,8 @@ function Convert-BookmarksToHtml {
     Set-Content -LiteralPath $OutHtml -Value $sb.ToString() -Encoding UTF8
 }
 
-# Chiffre un fichier avec AES-256 (PBKDF2). Format : WTB1 | salt(16) | iv(16) | data.
+# Chiffre un fichier avec AES-256 (PBKDF2). Format : SDB1 | salt(16) | iv(16) | data.
+# SDB1 depuis la 1.2 ; les paquets faits avant portent une autre signature (voir le 621).
 function Protect-File {
     param([string] $InFile, [string] $OutFile, [string] $Pass)
     $salt = New-Object byte[] 16
@@ -226,7 +227,7 @@ function Protect-File {
     $plain = [System.IO.File]::ReadAllBytes($InFile)
     $enc   = $aes.CreateEncryptor().TransformFinalBlock($plain, 0, $plain.Length)
     $out   = [System.IO.File]::Create($OutFile)
-    $out.Write([System.Text.Encoding]::ASCII.GetBytes('WTB1'), 0, 4)
+    $out.Write([System.Text.Encoding]::ASCII.GetBytes('SDB1'), 0, 4)
     $out.Write($salt, 0, 16); $out.Write($iv, 0, 16); $out.Write($enc, 0, $enc.Length)
     $out.Close()
 }
